@@ -1,6 +1,6 @@
 # Scoping `fieldtrial`: parameter sets + environmental drivers for `plant`
 
-Status: scoped 2026-11-09. Phases 0, 1 and 2a done (fieldtrial#2, #3, #4; plant-meta#9). Phase 2b (source adapters) under way: WorldClim in review. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
+Status: scoped 2026-11-09. Phases 0, 1, 2a and WorldClim done (fieldtrial#2–#5; plant-meta#9). Phase 3 (plant PR A) under way in a separate session. Phase 4 set machinery in review; the first real sets wait on cited trait values. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
 
 ## Context
 
@@ -177,6 +177,15 @@ First sets: `mulga_alice_springs` (AU-ASM, Alice Mulga OzFlux; AGCD rainfall 190
 - phylloptim's `leaf_traits()` has `g_min` (residual conductance, phylloptim #182) with no `TF24_Pars` field (plant hands the leaf a literal 0.0). Add `g_min` to `TF24_Pars` (default 0.0, bit-identical; non-zero `g_min` is untested anywhere in plant and must be checked when exposed). `JS22_gamma`, `CMax_a`, `CMax_b` belong to other stomatal models and are out of scope.
 - TF24t's thermal parameters sit beside `pars`, not in it. Either `generate_strategy()` learns to assign top-level strategy fields named in `parameter_table("TF24t")`, or the thermal fields move into a `TF24t_Pars`. The first is the smaller change and keeps the trait matrix as the one way in; fieldtrial's `strategy:` block is the fallback until it lands. These values are needed soon: phylloptim #187 will replace the placeholders, and a TF24t set is where the fitted values land.
 
+**As implemented in phase 4 (machinery).** These constrain later edits:
+
+- **Every scientific value is `{value, source}`**, and a value without a source is refused. Run and control settings are plain values. YAML integers are coerced to the type plant's field already has.
+- **A key that reaches none of plant's inputs is refused**: an unknown trait, a direct parameter the trade-offs derive (it would be overwritten), a strategy plumbing field, an unknown environment, `Parameters` or `Control` field. Direct `pars` and `strategy` fields are written to `strategy_default` before `add_strategies()`, so the one strategy is built on them.
+- **TF24t's thermal fields already reach plant through a set's `strategy:` block**, written to `strategy_default`. plant PR A's change to `generate_strategy()` is for trait matrices (sweeps, gradients), not needed by sets.
+- **Trade-offs are passed to `add_strategies()` explicitly** and kept on the set as `set$tradeoffs`. Once plant PR A settles how `Parameters` carries them, the loader attaches them there too.
+- **`check_passthrough()` reads phylloptim's own `leaf_traits()` and `leaf_control()`.** `plant::Leaf`'s constructor lists only the 15 traits plant passes by position, so it cannot show what is missing. phylloptim is in Suggests without a Remotes entry, so CI resolves it through plant's pinned remote.
+- **Two gaps found on plant develop@155995cb**: `g_min` (no `TF24_Pars` field) and the leaf's `integration_tol` (no `Control` field; plant forwards only `function_integration_rule`). Both belong in plant PR A. The test allows exactly these and fails on any new one.
+
 **Audit instead of trust.** fieldtrial carries `check_passthrough(model)`: it compares `names(phylloptim::leaf_traits())` with `names(<model>_Strategy()$pars)` and `names(phylloptim::leaf_control())` with `names(Control())`, and lists every leaf-side name that plant cannot set. It runs as a test against the pinned plant and phylloptim, so a new phylloptim trait that plant does not yet forward shows up as a failing test in fieldtrial, with the fix going to plant. Every set file is validated against `parameter_table(model)` so a key that reaches none of the four channels is refused at load, never silently dropped (the #636 rule, applied to sets).
 
 ### Drivers
@@ -253,13 +262,15 @@ Later adapters, in this order: SILO (Australia, daily, has radiation and VPD), T
 2. **fieldtrial PRs: generators and adapters**, split in two.
    - ✅ **2a, driver core** (fieldtrial#4): canonical met table (`met_schema()`, `validate_met()`), corrected solar geometry matching plant's 618 branch (`solar_declination()`, `solar_day()`, `swdown_clear_sky()`, `swdown_noon_from_mean()`), `met_time()`, `met_daily_from_subdaily()` (the half-hourly → noon-value fit every tower adapter reuses), `apply_drivers()`, `met_climatology()`, `met_repeat()`; `pulse_series_*` and `soil_widths_graded()` copied from plant with their tests.
    - **2b, source adapters**, one PR each:
-     - 🔄 **WorldClim** (in review): `met_from_monthly()`, the shared monthly-to-daily converter every monthly source uses, and `met_from_worldclim()` / `worldclim_monthly()` on top of it.
+     - ✅ **WorldClim** (fieldtrial#5): `met_from_monthly()`, the shared monthly-to-daily converter every monthly source uses, and `met_from_worldclim()` / `worldclim_monthly()` on top of it.
      - **AGCD** (`extract_agcd` + `met_from_agcd`): the local archive holds monthly precipitation only; temperature and vapour pressure must be fetched from NCI first.
      - **Towers** (`met_from_fluxnet`, `met_from_plumber2`, or `met_from_ozflux` on TERN's OzFlux server, which needs no login): need the site files.
      - **CRU TS** (`met_from_cru`): needs a CEDA download.
      - `met_sources()` and a bundled CO₂ history once there are several adapters.
 3. **plant PR A** (as above: `Parameters$hyperpar`, `default_parameters()` with warning, `testing_parameters()` helper, shims, `parameter_table()`, housekeeping). `scientific_version` unchanged (same numbers); goldens unchanged.
-4. **fieldtrial PR: sets** — `parameter_set()`, `check_set()`, `check_passthrough()`, `run_set()`, `mulga_alice_springs`, tall eucalypt; scenario CSVs re-expressed as sets; a vignette running each set end to end through `run_scm` via all four channels.
+4. **fieldtrial PRs: sets**, split in two.
+   - 🔄 **Machinery** (in review): set file format (schema 1, `inst/sets/README.md`), `parameter_set()`, `check_set()`, `run_set()`, `list_sets()`, `check_passthrough()`; tested on a synthetic set.
+   - **First sets**: `mulga_alice_springs`, a tall eucalypt, then `mulga_delta`; the scenario CSVs re-expressed as sets; a vignette running each set end to end. Needs trait values with Zotero keys (Zotero Desktop must be running).
 5. **regnans**: `plant_default_assembly_pars()` loads `default_parameters("FF16", quiet = TRUE)` or a fieldtrial set; bump `.plant-interface-version`. **logpile**: hash `param_hyperpar(p)` instead of `make_hyperpar(model)`. **overstorey**: `guides/extrinsic-drivers.qmd` fixes the stale PPFD row and gains a "from a met file" section; default-parameter claims read `parameter_table()` so they cannot rot.
 6. **plant PR B** (next minor release): removals listed above.
 

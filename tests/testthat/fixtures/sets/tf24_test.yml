@@ -1,0 +1,26 @@
+schema: 1
+name: tf24_test
+description: "A synthetic TF24 set for the tests: plant's defaults, a made-up site"
+model: TF24
+plant_scientific_version: "@PLANT_VERSION@"
+site: {name: "Test site", latitude: -22.28, longitude: 133.25, elevation: 600}
+traits:
+  lma: {value: 0.0825, source: "test fixture"}
+  rho: {value: 700, source: "test fixture"}
+pars:
+  hmat: {value: 8, source: "test fixture"}
+environment:
+  soil:
+    depth: {value: 1.5, source: "test fixture"}
+    n_layers: {value: 4, source: "test fixture"}
+    theta: {value: 0.3, source: "test fixture"}
+  fields:
+    f_PAR: {value: 0.48, source: "test fixture"}
+drivers:
+  source: met_file
+  file: test_met.csv
+  repeat: true
+  rainfall: pulse
+run: {max_patch_lifetime: 1, birth_rate: 2}
+control: {GSS_tol_abs: 0.002}
+provenance: {author: "fieldtrial tests", date: "2026-11-10", notes: "synthetic"}

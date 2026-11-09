@@ -21,6 +21,8 @@ Imports:
     yaml
 Suggests:
     testthat (>= 3.0.0),
+    withr,
+    phylloptim,
     geodata,
     terra,
     ncdf4

@@ -1,5 +1,5 @@
 test_that("TF24 trade-offs match plant's to the bit", {
-  ref <- plant_reference("make_TF24_hyperpar")
+  ref <- plant_frozen("TF24")
   s <- plant::TF24_Strategy()
   m <- tf24_grid()
   for (filter in c(FALSE, TRUE)) {
@@ -19,7 +19,7 @@ test_that("TF24 trade-offs match plant's to the bit", {
 })
 
 test_that("overridden coefficients match plant's arguments", {
-  ref <- plant_reference("make_TF24_hyperpar")
+  ref <- plant_frozen("TF24")
   s <- plant::TF24_Strategy()
   m <- tf24_grid()
   expect_identical(
@@ -27,10 +27,10 @@ test_that("overridden coefficients match plant's arguments", {
     ref(B_Hv2 = -0.3, B_hks2 = 1, B_c2 = 0.1)(m, s, FALSE))
 })
 
-test_that("each TF24 variant matches plant's hyperpar for it", {
+test_that("each TF24 variant matches plant's trade-offs for it", {
   m <- tf24_grid()
   for (model in c("TF24f", "TF24t", "TF24w")) {
-    ref <- plant_reference(paste0(model, "_hyperpar"))
+    ref <- plant_frozen(model)()
     s <- get(paste0(model, "_Strategy"), envir = asNamespace("plant"))()
     expect_identical(tradeoffs(model)(m, s, filter = TRUE),
                      ref(m, s, filter = TRUE), label = model)

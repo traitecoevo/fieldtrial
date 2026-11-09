@@ -1,7 +1,6 @@
-## Leaf parameters plant does not yet forward: g_min has no TF24_Pars field
-## until fieldtrial's plant pin passes the change that adds it. Remove it then;
-## nothing may be added.
-known_gaps <- c("g_min")
+## Leaf parameters plant does not forward. None: every leaf trait and control
+## is reachable or out of scope. A name appearing here is a plant fix to make.
+known_gaps <- character(0)
 
 test_that("every leaf trait and control is reachable, out of scope, or a known gap", {
   skip_if_not_installed("phylloptim")

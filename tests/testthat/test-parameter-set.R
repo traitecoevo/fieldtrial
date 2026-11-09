@@ -12,6 +12,11 @@ test_that("a set builds all four of run_scm's inputs from its file", {
   expect_identical(pars$r_s, unname(derived[1, "r_s"]))
   ## A parameter set directly.
   expect_identical(pars$hmat, 8)
+  ## The set's trade-offs travel with its Parameters.
+  if ("hyperpar" %in% names(set$p)) {
+    expect_identical(plant::param_hyperpar(set$p)(cbind(lma = 0.1), set$p$strategy_default),
+                     set$tradeoffs(cbind(lma = 0.1), set$p$strategy_default))
+  }
   expect_identical(set$p$max_patch_lifetime, 1)
   expect_identical(set$p$strategies[[1]]$birth_rate_y, 2)
   ## Soil, environment field, drivers, control.

@@ -1,15 +1,13 @@
 test_that("coefficients are plant's defaults, to the bit", {
-  for (spec in list(list("TF24", "make_TF24_hyperpar", "latitude"),
-                    list("FF16", "make_FF16_hyperpar", character()))) {
-    fn <- plant_reference(spec[[2]])
-    pf <- formals(fn)
-    pf <- pf[setdiff(names(pf), spec[[3]])]
-    expected <- lapply(pf, eval, baseenv())
-    got <- tradeoff_coefficients(spec[[1]])
+  for (model in c("TF24", "FF16")) {
+    expected <- attr(plant_frozen(model)(), "coefficients")
+    ## TF24's latitude argument was never read; fieldtrial does not carry it.
+    if (model == "TF24") expected$latitude <- NULL
+    got <- tradeoff_coefficients(model)
     expect_setequal(names(got), names(expected))
     for (name in names(got)) {
       expect_identical(got[[name]], as.numeric(expected[[name]]),
-                       label = paste(spec[[1]], name))
+                       label = paste(model, name))
     }
   }
 })

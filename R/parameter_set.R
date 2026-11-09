@@ -106,6 +106,9 @@ parameter_set <- function(set, check = TRUE, drivers = TRUE,
   m <- matrix(unlist(traits), nrow = 1, dimnames = list(NULL, names(traits)))
   p <- plant::add_strategies(p, m, tf, birth_rate = as.numeric(run$birth_rate %||% 1),
                              keep_existing = FALSE)
+  ## plant's Parameters carry their trade-offs, so mutants, gradients and
+  ## anything else built from p later use the set's, not plant's testing copy.
+  if ("hyperpar" %in% names(p)) p$hyperpar <- tf
 
   ## Environment: soil, other fields, drivers.
   env <- plant::Environment(model)

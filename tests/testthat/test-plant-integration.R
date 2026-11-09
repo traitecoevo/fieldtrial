@@ -1,7 +1,7 @@
 test_that("strategies built through plant are the same with either copy", {
-  for (spec in list(list("TF24", "TF24_hyperpar", c(0.1, 0.25), "lma"),
-                    list("FF16", "FF16_hyperpar", c(0.1, 0.25), "lma"))) {
-    ref <- plant_reference(spec[[2]])
+  for (spec in list(list("TF24", "TF24", c(0.1, 0.25), "lma"),
+                    list("FF16", "FF16", c(0.1, 0.25), "lma"))) {
+    ref <- plant_frozen(spec[[2]])()
     p <- plant::scm_base_parameters(spec[[1]])
     traits <- plant::trait_matrix(spec[[3]], spec[[4]])
     birth_rate <- rep(1, nrow(traits))

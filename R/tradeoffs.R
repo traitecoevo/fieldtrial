@@ -17,9 +17,10 @@
 #'   `"TF24w"`. The TF24 variants share one set of trade-offs.
 #' @param coefficients A named list of coefficients that replace the defaults
 #'   in [tradeoff_coefficients()]. Unknown names are refused.
-#' @return A function `f(m, s, filter = TRUE)`. FF16's carries
-#'   `attr(f, "input_traits")`, naming the traits it reads that are not
-#'   parameters of the model.
+#' @return A function `f(m, s, filter = TRUE)`, carrying `attr(f, "model")`,
+#'   `attr(f, "coefficients")` and `attr(f, "traits")` (every trait-matrix
+#'   column it reads). FF16's also carries `attr(f, "input_traits")`, naming
+#'   the traits it reads that are not parameters of the model.
 #' @export
 #' @examples
 #' f <- tradeoffs("TF24", coefficients = list(B_Hv2 = -0.25))
@@ -32,6 +33,11 @@ tradeoffs <- function(model, coefficients = list()) {
               TF24 = tf24_tradeoffs(co))
   attr(f, "model") <- model
   attr(f, "coefficients") <- co
+  ## Every trait-matrix column the function reads, which plant's
+  ## parameter_table() uses to tell traits from other parameters.
+  attr(f, "traits") <- switch(family,
+    FF16 = c("lma", "rho", "omega", "narea"),
+    TF24 = c("lma", "rho", "omega", "K_s", "vcmax_25", "jmax_25"))
   f
 }
 

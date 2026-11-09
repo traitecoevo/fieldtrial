@@ -14,7 +14,7 @@ tradeoff_coefficients:
   B_Hv1: {value: 0.73128415612006736, source: "PROXY. Set so stem_P50 = 6.7 MPa at plant's default K_s: no stem P50 for any mulga taxon was found. 6.7 MPa is the leaf water potential at stomatal closure in A. aptaneura at AU-ASM (Nolan-2018a, doi:10.1016/j.jaridenv.2018.01.003; mulga-library), a lower bound on P50. Midday leaf water potential there reaches -6.5 to -6.9 MPa (Nolan-2017b, doi:10.1071/fp17079; Nolan-2018a)."}
 pars:
   theta: {value: 1.57e-03, source: "Nolan-2018a (doi:10.1016/j.jaridenv.2018.01.003), Table 2: A. aptaneura Huber value 15.7 +/- 1.6 x 1e-4, branches of 4 trees, AU-ASM"}
-  hmat: {value: 4.700879, source: "Falster-2021 (AusTraits): austraits-means 7.0.0.9000 geometric observed mean plant height for Acacia aneura, 416 records from 330 locations; a proxy for height at maturation, which has no direct measurement. Canopy at the tower averages 6.5 m, trees 3-7 m (Tarin-2020a, doi:10.1016/j.agrformet.2019.107853)"}
+  hmat: {value: 2.5, source: "Preece-1971a (doi:10.1071/bt9710021), Methods: the flowering mulga studied were mostly between 2 and 3 m tall (chosen as a size convenient for counting flowers); a proxy for height at maturation, which has no direct measurement. AusTraits' mean plant height (4.7 m) was tried first: the stand reached it only in the 105th year, so it barely reproduced"}
   root_P50: {value: 6.7, source: "PROXY, as for B_Hv1: stomatal closure at -6.7 MPa in A. aptaneura (Nolan-2018a). No root vulnerability curve for any mulga taxon was found"}
 environment:
   soil:
@@ -33,8 +33,8 @@ provenance:
   notes: >-
     Decided with the maintainer 2026-11-10: site-measured A. aptaneura values first and
     AusTraits A. aneura sensu lato means to fill; stem and root P50 from stomatal closure
-    as a flagged proxy, pending a measured vulnerability curve; hmat from AusTraits mean
-    plant height; soil to the hardpan at 1.0 m. K_sat stays at plant's default because
+    as a flagged proxy, pending a measured vulnerability curve; hmat 2.5 m from the size of
+    flowering trees (Preece-1971a); soil to the hardpan at 1.0 m. K_sat stays at plant's default because
     plant does not document its units, so the ASRIS sandy-loam value (1.0 m d-1, Chen-2014)
     cannot be converted. Not set, for lack of mulga data: K_s (sapwood-specific
     conductivity; only anatomical indices exist), stem_c, root_c, leaf lifespan. leaf_temp

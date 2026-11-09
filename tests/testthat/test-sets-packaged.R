@@ -15,7 +15,7 @@ test_that("the Alice Springs mulga set carries its traits and its hydraulic prox
   expect_equal(pars$rho, 950)
   expect_equal(pars$vcmax_25, 174)
   expect_equal(pars$theta, 1.57e-3)
-  expect_equal(pars$hmat, 4.700879)
+  expect_equal(pars$hmat, 2.5)
   ## The stem curve's P50 is the proxy, through the trade-off at the default
   ## K_s; the root curve's directly.
   expect_equal(pars$stem_P50, 6.7, tolerance = 1e-12)

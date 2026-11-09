@@ -9,8 +9,10 @@
 #' * `VPD_amp` and `VPD_noon` come from a least-squares fit of
 #'   `VPD(h) = c0 * (1 + A * cos(2 * pi * (h - vpd_peak_hour) / 24))` to the
 #'   day's record, in local solar time.
-#' * Temperatures are the day's mean, maximum and minimum; precipitation its
-#'   total; wind and CO2 their means while the sun is up; pressure its mean.
+#' * `Tair_noon` comes from the same fit applied to air temperature (with no
+#'   amplitude bound); the day's mean, maximum and minimum are kept too.
+#' * Precipitation is the day's total; wind and CO2 their means while the sun
+#'   is up; pressure its mean.
 #'
 #' Records are put into days by local solar time, worked out from the
 #' timestamps' fixed offset from UTC, the longitude and the equation of time.
@@ -108,18 +110,21 @@ met_daily_from_subdaily <- function(x, latitude, longitude, utc_offset,
     fit <- t(vapply(idx, function(i) {
       fit_vpd_cosine(hour[i], x$VPD[i], vpd_peak_hour)
     }, numeric(2)))
-    c0 <- unname(fit[, 1])
-    amp <- unname(fit[, 2])
-    clamp <- !is.na(amp) & (amp < 0 | amp > max_amp)
-    amp_clamped <- sum(clamp)
-    amp <- pmin(pmax(amp, 0), max_amp)
-    noon <- c0 * (1 + amp * cos(2 * pi * (12 - vpd_peak_hour) / 24))
-    floor_it <- !is.na(noon) & noon < vpd_floor
-    vpd_floored <- sum(floor_it)
-    out$VPD_noon <- pmax(noon, vpd_floor)
-    out$VPD_amp <- unname(amp)
+    b <- bound_vpd(unname(fit[, 1]), unname(fit[, 2]), vpd_peak_hour,
+                   max_amp, vpd_floor)
+    out$VPD_noon <- b$noon
+    out$VPD_amp <- b$amp
+    amp_clamped <- b$amp_clamped
+    vpd_floored <- b$vpd_floored
   }
   if ("Tair" %in% names(x)) {
+    tfit <- t(vapply(idx, function(i) {
+      z <- cos(2 * pi * (hour[i] - vpd_peak_hour) / 24)
+      zc <- z - mean(z)
+      slope <- sum(zc * (x$Tair[i] - mean(x$Tair[i]))) / sum(zc^2)
+      c(mean(x$Tair[i]) - slope * mean(z), slope)
+    }, numeric(2)))
+    out$Tair_noon <- unname(tfit[, 1] + tfit[, 2] * cos(2 * pi * (12 - vpd_peak_hour) / 24))
     out$Tair_mean <- day_mean(x$Tair)
     out$Tair_max <- vapply(idx, function(i) max(x$Tair[i]), numeric(1), USE.NAMES = FALSE)
     out$Tair_min <- vapply(idx, function(i) min(x$Tair[i]), numeric(1), USE.NAMES = FALSE)
@@ -150,6 +155,18 @@ fit_vpd_cosine <- function(hour, vpd, peak) {
   slope <- sum(zc * (vpd - mean(vpd))) / sum(zc^2)
   c0 <- mean(vpd) - slope * mean(z)
   c(c0, if (c0 > 0) slope / c0 else NA_real_)
+}
+
+## Keep a fitted VPD cosine inside what plant accepts: amplitude in
+## [0, max_amp], noon value at least vpd_floor. Returns the noon value, the
+## amplitude, and how many days each correction touched.
+bound_vpd <- function(c0, amp, peak, max_amp, vpd_floor) {
+  clamp <- !is.na(amp) & (amp < 0 | amp > max_amp)
+  amp <- pmin(pmax(amp, 0), max_amp)
+  noon <- c0 * (1 + amp * cos(2 * pi * (12 - peak) / 24))
+  floor_it <- !is.na(noon) & noon < vpd_floor
+  list(noon = pmax(noon, vpd_floor), amp = amp,
+       amp_clamped = sum(clamp), vpd_floored = sum(floor_it))
 }
 
 ## Equation of time, minutes (Spencer 1971 form): apparent minus mean solar

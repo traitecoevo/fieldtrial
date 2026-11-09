@@ -1,6 +1,6 @@
 # Scoping `fieldtrial`: parameter sets + environmental drivers for `plant`
 
-Status: scoped 2026-11-09. Phases 0 and 1 done (fieldtrial#2, #3; plant-meta#9). Phase 2a (driver core, no external data) in review; 2b (source adapters) next. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
+Status: scoped 2026-11-09. Phases 0, 1 and 2a done (fieldtrial#2, #3, #4; plant-meta#9). Phase 2b (source adapters) under way: WorldClim in review. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
 
 ## Context
 
@@ -192,7 +192,8 @@ Canonical daily met table (ALMA-style names; a FLUXNET or PLUMBER2 record maps o
 | `SWdown_mean` | W m⁻² | 24 h mean, diagnostics only |
 | `VPD_noon` | kPa | smoothed value at solar noon → `atm_vpd`; computed from `Qair`/`RH`, `Tair`, `Psurf` |
 | `VPD_amp` | – | relative amplitude of the cosine fit, in [0, 1) → `atm_vpd_diurnal_amp` |
-| `Tair_mean`, `Tair_max`, `Tair_min` | °C | daily; `Tair_mean` → `leaf_temp` when the pin is lifted; `Tair_max` for TF24t and heat events |
+| `Tair_noon` | °C | air temperature at solar noon → `leaf_temp`, when requested |
+| `Tair_mean`, `Tair_max`, `Tair_min` | °C | daily; `Tair_max` for TF24t and heat events |
 | `Precip` | mm d⁻¹ | daily total |
 | `Wind` | m s⁻¹ | daytime mean |
 | `Psurf` | kPa | → `atm_kpa` |
@@ -209,6 +210,22 @@ Site metadata (`lat`, `lon`, `elev`, `vpd_peak_hour`) travel as attributes and a
 - **`latitude`, `vpd_peak_hour` and `atm_vpd_diurnal_amp` are written only where the environment has them.** plant develop does not yet (the 618 branch adds them), so today a table's `VPD_amp` is recorded as "not in this plant version" and the one-solve path runs on the noon values unchanged.
 - **The subdaily fit groups by local solar day** (UTC offset, longitude, equation of time). A solar day can hold one step more or fewer than 24 clock hours, so "complete" allows ±1 step; the uneven sampling biases the VPD cosine fit by about 3e-4. Amplitudes outside `[0, 0.99]` are clamped and noon VPD below 0.01 kPa raised, both counted in attributes.
 - **`swdown_noon_from_mean()` conserves energy exactly**: the noon value of a clear-sky-shaped day holding the observed daily total, so the day plant rebuilds integrates to what was measured.
+
+**As implemented for WorldClim (phase 2b).** These constrain later edits:
+
+- **`Tair_noon` joins the table, and `leaf_temp` maps to it, not to `Tair_mean`** (a change to phase 2a). Every other driver is a noon value, and the leaf refuses a VPD at or above `e_s(leaf_temp)`: pairing a noon VPD with the daily mean temperature refused ordinary arid summer days (at Alice Springs the noon VPD exceeds `e_s` at the daily mean). Tower records fit `Tair_noon` with the same cosine as VPD; monthly sources read it from the day's temperature cosine.
+- **`met_from_monthly()` holds every monthly-source assumption**, so WorldClim, CRU TS and AGCD share them: linear interpolation between mid-month values (wrapping for normals); precipitation and shortwave rescaled to keep each month's total exactly; one temperature cosine between Tmin and Tmax peaking at `peak_hour` (default 14.5, the same hour as VPD); VPD through the day `e_s(T(h)) - e_a` with `e_a` constant, fitted and bounded exactly as tower VPD is; pressure from elevation by the standard atmosphere. Columns from an assumption are named in `attr(, "filled")`.
+- **WorldClim downloads whole global grids**, cached under `tools::R_user_dir("fieldtrial", "cache")`. Measured download sizes: about 200 MB for the seven variables at 10 arc-minutes (the default), 700 MB at 5, 2.5 GB at 2.5; 30 arc-seconds fetches the site's tile. Its wind is a 24-hour mean used for the table's daytime mean (marked filled). It has no CO₂.
+- **No WorldClim values are committed.** The WorldClim 2.1 page states no licence or redistribution terms, so the tests use synthetic normals and small in-memory rasters; the download path is checked by hand.
+- **`apply_drivers()` warns when a climatology's rainfall is sent as pulses**, since a mean year's rain is a daily drizzle.
+
+**Candidate sources at TERN** (checked 2026-11-09 by web search; not yet tried from here):
+
+- **ANUClimate 2.0**: daily 1 km grids for mainland Australia, with rainfall back to 1900 and the other variables from at least 1970: mean, maximum and minimum temperature, rainfall, solar radiation, vapour pressure deficit, pan evaporation. On NCI (project gh70, THREDDS DOI 10.25914/608bfc062f4c7). The best Australian daily source for this table, since it has radiation and VPD that AGCD lacks.
+- **OzFlux L6** on TERN's THREDDS server (`dap.ozflux.org.au`), per-site processed tower data, as an open alternative to the FLUXNET Shuttle. The server timed out from this machine on 2026-11-09.
+- **Soil and Landscape Grid of Australia**: clay, sand, available water capacity and more at six depth slices on a 90 m grid, served by WCS and Cloud-Optimised GeoTIFF; a source for TF24's soil parameters through pedotransfer functions.
+- **SMIPS**: daily 1 km volumetric soil moisture, for initial soil water and for checking modelled soil water.
+- **AusPlots** (R package `ausplotsR`): vegetation structure and composition at surveillance plots, for checking parameter sets.
 
 **Source adapters.** Every source is one function `met_from_<source>(sites, ...)` returning the canonical table (or a monthly climatology table for climatology-only sources), with attributes recording the source, version, resolution and which columns were gap-filled rather than observed. `met_sources()` lists them. First release:
 
@@ -234,8 +251,13 @@ Later adapters, in this order: SILO (Australia, daily, has radiation and VPD), T
 0. ✅ **fieldtrial first commit** (fieldtrial#2, plant-meta#9, 2026-11-09): package skeleton, `PLAN.md` (this document, trimmed), `.plant-interface-version`, README with family boilerplate, board auto-add workflow, CI that installs plant@develop. Clone into plant-family. Open the tracking epic in fieldtrial; link plant #697, #698, #701. **plant-meta PR**: register fieldtrial as above.
 1. ✅ **fieldtrial PR: trade-offs** (fieldtrial#3) — port `make_FF16_hyperpar`/`make_TF24_hyperpar` as `tradeoffs()` with the simplifications above; coefficient YAMLs; bit-identity tests against plant's current functions over a trait grid; the stem_P50 invariant test.
 2. **fieldtrial PRs: generators and adapters**, split in two.
-   - 🔄 **2a, driver core** (no external data; in review): canonical met table (`met_schema()`, `validate_met()`), corrected solar geometry matching plant's 618 branch (`solar_declination()`, `solar_day()`, `swdown_clear_sky()`, `swdown_noon_from_mean()`), `met_time()`, `met_daily_from_subdaily()` (the half-hourly → noon-value fit every tower adapter reuses), `apply_drivers()`, `met_climatology()`, `met_repeat()`; `pulse_series_*` and `soil_widths_graded()` copied from plant with their tests.
-   - **2b, source adapters**: `met_from_fluxnet`, `met_from_plumber2`, `extract_agcd` + `met_from_agcd`, `met_from_worldclim`, `met_from_cru`, `met_sources()`, a bundled CO₂ history. Needs FLUXNET Shuttle access, a local PLUMBER2 copy, the AGCD archive and a CRU TS download; tests on committed one-year excerpts.
+   - ✅ **2a, driver core** (fieldtrial#4): canonical met table (`met_schema()`, `validate_met()`), corrected solar geometry matching plant's 618 branch (`solar_declination()`, `solar_day()`, `swdown_clear_sky()`, `swdown_noon_from_mean()`), `met_time()`, `met_daily_from_subdaily()` (the half-hourly → noon-value fit every tower adapter reuses), `apply_drivers()`, `met_climatology()`, `met_repeat()`; `pulse_series_*` and `soil_widths_graded()` copied from plant with their tests.
+   - **2b, source adapters**, one PR each:
+     - 🔄 **WorldClim** (in review): `met_from_monthly()`, the shared monthly-to-daily converter every monthly source uses, and `met_from_worldclim()` / `worldclim_monthly()` on top of it.
+     - **AGCD** (`extract_agcd` + `met_from_agcd`): the local archive holds monthly precipitation only; temperature and vapour pressure must be fetched from NCI first.
+     - **Towers** (`met_from_fluxnet`, `met_from_plumber2`, or `met_from_ozflux` on TERN's OzFlux server, which needs no login): need the site files.
+     - **CRU TS** (`met_from_cru`): needs a CEDA download.
+     - `met_sources()` and a bundled CO₂ history once there are several adapters.
 3. **plant PR A** (as above: `Parameters$hyperpar`, `default_parameters()` with warning, `testing_parameters()` helper, shims, `parameter_table()`, housekeeping). `scientific_version` unchanged (same numbers); goldens unchanged.
 4. **fieldtrial PR: sets** — `parameter_set()`, `check_set()`, `check_passthrough()`, `run_set()`, `mulga_alice_springs`, tall eucalypt; scenario CSVs re-expressed as sets; a vignette running each set end to end through `run_scm` via all four channels.
 5. **regnans**: `plant_default_assembly_pars()` loads `default_parameters("FF16", quiet = TRUE)` or a fieldtrial set; bump `.plant-interface-version`. **logpile**: hash `param_hyperpar(p)` instead of `make_hyperpar(model)`. **overstorey**: `guides/extrinsic-drivers.qmd` fixes the stale PPFD row and gains a "from a met file" section; default-parameter claims read `parameter_table()` so they cannot rot.

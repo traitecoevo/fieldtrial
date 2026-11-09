@@ -6,6 +6,7 @@ met_two_years <- function() {
                     SWdown_noon = 800 + 150 * cos(2 * pi * k / 365),
                     VPD_noon = 1.2 + 0.6 * cos(2 * pi * k / 365),
                     VPD_amp = rep(0.4, n),
+                    Tair_noon = 27 + 6 * cos(2 * pi * k / 365),
                     Tair_mean = 22 + 6 * cos(2 * pi * k / 365),
                     Precip = ifelse(k %% 9 == 0, 12, 0),
                     Wind = rep(2.5, n), Psurf = rep(95, n), CO2air = rep(415, n))
@@ -60,7 +61,7 @@ test_that("leaf temperature is set only when asked for, and VPD is checked again
   met <- met_two_years()
   apply_drivers(env, met, drivers = c("leaf_temp", "atm_vpd"))
   t <- met_time(met$date, 2010)
-  expect_equal(env$extrinsic_drivers_evaluate("leaf_temp", t[200]), met$Tair_mean[200])
+  expect_equal(env$extrinsic_drivers_evaluate("leaf_temp", t[200]), met$Tair_noon[200])
 
   hot <- met
   hot$VPD_noon[50] <- 5  # e_s at 25 degC is about 3.17 kPa

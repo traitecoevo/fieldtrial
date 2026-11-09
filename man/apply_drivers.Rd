@@ -49,14 +49,16 @@ knot per day at its middle, and turns its precipitation into rainfall:
    \code{Psurf} \tab \code{atm_kpa} \tab none, kPa \cr
    \code{Wind} \tab \code{wind_speed} \tab none, m s-1 \cr
    \code{CO2air} \tab \code{ca} \tab ppm to Pa at \code{Psurf}, or at the environment's \code{atm_kpa} \cr
-   \code{Tair_mean} \tab \code{leaf_temp} \tab only if \code{"leaf_temp"} is in \code{drivers} \cr
+   \code{Tair_noon} \tab \code{leaf_temp} \tab only if \code{"leaf_temp"} is in \code{drivers} \cr
    \code{Precip} \tab rainfall \tab see \code{rainfall} \cr
 }
 
 
 \code{leaf_temp} is left at plant's value unless asked for, because plant's TF24
 runs its leaf at that temperature with the energy balance off, and a site's
-air temperature changes every temperature response at once.
+air temperature changes every temperature response at once. When asked for,
+it is the noon temperature, like every other driver here: the daily mean
+would pair a noon VPD with a cooler, less saturable air.
 
 Rainfall is delivered as \strong{pulses} by default: each wet day's total, in
 metres, at the middle of the day, as rows from \code{plant::rainfall_pulse()}, and

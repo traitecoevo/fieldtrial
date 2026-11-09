@@ -25,7 +25,8 @@ saying what is wrong.
 \details{
 The table holds \strong{noon values}, not daytime means: plant's TF24 reads
 \code{SWdown} and \code{atm_vpd} as their values at solar noon and rebuilds the day
-from them, with a VPD amplitude and the latitude. Only \code{date} is required;
+from them, with a VPD amplitude and the latitude. \code{Tair_noon} is the air
+temperature the same noon, and the one a noon VPD must be read against. Only \code{date} is required;
 a source supplies the columns it can. Site metadata travel as attributes:
 \code{latitude}, \code{longitude} and \code{vpd_peak_hour} (local solar time of the VPD
 peak), and \code{filled}, naming the columns that were estimated rather than

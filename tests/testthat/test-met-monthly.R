@@ -35,7 +35,9 @@ test_that("noon temperature and VPD follow the day's cosine", {
   ## stays close to e_s(T(h)) - e_a: one harmonic of a convex function.
   h <- seq(0.5, 23.5, by = 1)
   T_h <- met$Tair_mean[k] + half * cos(2 * pi * (h - 14.5) / 24)
-  e_a <- stats::approx(c(15.5 - 31, 15.5, 45), c(1.2, 1.4, 1.5), xout = 15)$y
+  ## Day 15 lies between December's middle (day 350, wrapped to -15) and
+  ## January's (day 16).
+  e_a <- stats::approx(c(350 - 365, 16), c(1.2, 1.4), xout = 15)$y
   truth <- saturation_vapour_pressure(T_h) - e_a
   shape <- (1 + met$VPD_amp[k] * cos(2 * pi * (h - 14.5) / 24)) /
     (1 + met$VPD_amp[k] * cos(2 * pi * (12 - 14.5) / 24))

@@ -83,7 +83,12 @@ worldclim_extract <- function(rasters, elevation, latitude, longitude) {
   xy <- matrix(c(longitude, latitude), ncol = 2)
   at <- function(r) {
     v <- as.numeric(terra::extract(r, xy)[1, , drop = TRUE])
-    if (length(v) != terra::nlyr(r)) v <- v[-1]  # an ID column
+    ## terra may prepend an ID column; anything else is not a raster we know.
+    if (length(v) == terra::nlyr(r) + 1L) v <- v[-1]
+    if (length(v) != terra::nlyr(r)) {
+      stop("Unexpected terra::extract() result: ", length(v), " values for ",
+           terra::nlyr(r), " layers", call. = FALSE)
+    }
     v
   }
   values <- lapply(rasters, at)

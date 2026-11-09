@@ -31,8 +31,7 @@ a derived column equal to the strategy's own value in every row is left out,
 so the strategy keeps its default.
 
 These are the recommended trade-offs. plant keeps its own frozen copy for
-testing; the two agree to the bit at the coefficients plant uses (TF24) or
-to rounding (FF16, whose assimilation integral plant sums in C++).
+testing; on any one platform the two give identical numbers.
 }
 \examples{
 f <- tradeoffs("TF24", coefficients = list(B_Hv2 = -0.25))

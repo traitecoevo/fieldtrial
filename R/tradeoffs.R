@@ -11,8 +11,7 @@
 #' so the strategy keeps its default.
 #'
 #' These are the recommended trade-offs. plant keeps its own frozen copy for
-#' testing; the two agree to the bit at the coefficients plant uses (TF24) or
-#' to rounding (FF16, whose assimilation integral plant sums in C++).
+#' testing; on any one platform the two give identical numbers.
 #'
 #' @param model A plant model name: `"FF16"`, `"TF24"`, `"TF24f"`, `"TF24t"` or
 #'   `"TF24w"`. The TF24 variants share one set of trade-offs.

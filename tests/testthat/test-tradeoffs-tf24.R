@@ -41,11 +41,15 @@ test_that("the default stem curve is the curve at the default K_s", {
   ## plant's TF24 defaults for the stem vulnerability curve were chosen to lie
   ## on this trade-off (traitecoevo/plant#611). If plant moves either side,
   ## this fails, and the two must be brought back together deliberately.
+  ## plant's defaults are C++ literals; the trade-off is computed with this
+  ## platform's pow(), which can differ from the platform the literal came from
+  ## in the last bit (glibc does for stem_P50).
   s <- plant::TF24_Strategy()
   d <- tradeoffs("TF24")(plant::trait_matrix(s$pars$K_s, "K_s"), s,
                          filter = FALSE)
   for (name in c("stem_P50", "stem_c", "stem_b", "psi_crit")) {
-    expect_identical(unname(d[1, name]), s$pars[[name]], label = name)
+    expect_equal(unname(d[1, name]), s$pars[[name]], tolerance = 1e-14,
+                 label = name)
   }
 })
 

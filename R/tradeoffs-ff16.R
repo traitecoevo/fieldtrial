@@ -51,10 +51,10 @@ ff16_annual_assimilation_curve <- function(narea, co, k_I) {
   Amax <- co$B_lf1 * (narea / co$narea_0)^co$B_lf5
   theta <- co$B_lf2
   QY <- co$B_lf3
-  AA <- NA * E
-  for (i in seq_along(E)) {
-    AA[i] <- 2 * trapezium(D, rectangular_hyperbola(k_I * I * E[i], Amax, theta, QY))
-  }
+  ## One row per openness, one column per day: row i is plant's integrand at
+  ## E[i], computed term for term as plant does, k_I * I * E[i].
+  light <- t(outer(k_I * I, E))
+  AA <- 2 * trapezium_rows(D, rectangular_hyperbola(light, Amax, theta, QY))
   if (all(diff(AA) < 1e-8)) {
     ## The fit fails on a flat curve, e.g. all zero.
     ret <- c(AA[length(AA)], 0)
@@ -72,16 +72,26 @@ rectangular_hyperbola <- function(I, Amax, theta, QY) {
   (x - sqrt(x^2 - 4 * theta * QY * I * Amax)) / (2 * theta)
 }
 
-## Trapezium rule. plant sums the same terms in C++; the sum here can differ
-## from it in the last bits, which is why FF16 agrees with plant to rounding
-## rather than to the bit.
-trapezium <- function(x, y) {
+## Trapezium rule over x for each row of Y, summed in plant's order and
+## precision: plant's C++ adds (x[j+1] - x[j]) * (y[j+1] + y[j]) to a double,
+## one interval at a time, and halves the total.
+##
+## ⚠️ DO NOT REPLACE THE LOOP WITH sum() OR cumsum(). Both accumulate in long
+## double, which is 80-bit on x86 Linux, and the assimilation fit downstream
+## amplifies the last-bit difference to ~1e-11 in a_p1. The loop runs over the
+## intervals with all rows at once, so it costs one vector add per interval.
+trapezium_rows <- function(x, Y) {
   n <- length(x)
-  if (length(y) != n || n < 2L) {
-    stop("trapezium() needs x and y of the same length, at least 2",
-         call. = FALSE)
+  if (!is.matrix(Y) || ncol(Y) != n || n < 2L) {
+    stop("trapezium_rows() needs a matrix with one column per x, and at ",
+         "least 2 of them", call. = FALSE)
   }
-  sum((x[-1L] - x[-n]) * (y[-1L] + y[-n])) * 0.5
+  dx <- x[-1L] - x[-n]
+  total <- numeric(nrow(Y))
+  for (j in seq_len(n - 1L)) {
+    total <- total + dx[j] * (Y[, j + 1L] + Y[, j])
+  }
+  total * 0.5
 }
 
 ## PAR on a surface normal to the sun [mol m-2 d-1] at solar elevation

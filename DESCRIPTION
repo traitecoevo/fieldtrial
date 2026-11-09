@@ -1,5 +1,5 @@
 Package: fieldtrial
-Title: Parameter Sets, Trait Trade-Offs and Environmental Drivers for the plant Model
+Title: Parameter Sets, Trait Trade-Offs and Environmental Drivers for the 'plant' Model
 Version: 0.0.0.9000
 Authors@R: c(
     person("Daniel", "Falster", , "daniel.falster@unsw.edu.au", c("aut", "cre"),
@@ -17,6 +17,7 @@ Depends:
     R (>= 4.5.0)
 Imports:
     plant,
+    stats,
     yaml
 Suggests:
     testthat (>= 3.0.0),
@@ -26,5 +27,5 @@ Remotes:
     traitecoevo/plant@develop
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0

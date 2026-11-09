@@ -19,7 +19,7 @@ The tests compare against plant's own trade-off functions, so they need the plan
 - **Two copies of the trade-off forms exist by decision.** plant's is frozen (changing it re-blesses plant's goldens); this one is live. A bit-identity test here records when they diverge. Do not "fix" one to match the other without reading `PLAN.md` first.
 - **Cite, never recall.** Every trait, coefficient and soil value in a set names a Zotero key or a dataset. A number without a source is refused in review.
 - **Every value a set names must reach `run_scm()`.** `check_passthrough(model)` lists leaf-side parameters plant cannot set; gaps are fixed in plant, not papered over here.
-- **Driver semantics follow plant.** `SWdown` and `atm_vpd` are values at solar noon; rainfall is delivered as pulses by default. See `PLAN.md` § Drivers before changing an adapter.
+- **Driver semantics follow plant.** `SWdown` and `atm_vpd` are values at solar noon; rainfall is delivered as pulses by default; drivers cover whole days from time 0. Every adapter returns the table `validate_met()` accepts, and tower records go through `met_daily_from_subdaily()` rather than their own aggregation. See `PLAN.md` § Drivers before changing an adapter.
 
 ## Plant family
 

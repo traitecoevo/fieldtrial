@@ -1,0 +1,8 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.claude$
+^\.github$
+^\.plant-interface-version$
+^AGENTS\.md$
+^PLAN\.md$
+^LICENSE\.md$

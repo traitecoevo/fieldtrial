@@ -1,6 +1,6 @@
 # Scoping `fieldtrial`: parameter sets + environmental drivers for `plant`
 
-Status: scoped 2026-11-09; phase 0 (this scaffold) in progress. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
+Status: scoped 2026-11-09. Phase 0 done (fieldtrial#2, plant-meta#9); phase 1 (trade-offs) in review. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
 
 ## Context
 
@@ -109,6 +109,16 @@ Port discipline: before plant removes anything, fieldtrial's tests assert bit-id
 
 Cross-repo invariant test, in fieldtrial: `tradeoffs("TF24")` at plant's default traits reproduces `TF24_Strategy()$pars[c("stem_P50", "stem_c", "stem_b", "psi_crit")]`. The `B_Hv1` entry in `TF24.yml` documents that the K_s→P50 slope acts on tip conductivity since #615 and names #49 as the open question on the height exponent.
 
+**As implemented in phase 1** (plant develop@ae869f13). These constrain later edits:
+
+- **Coefficient values are quoted R arithmetic expressions** (`value: "2.0 * 4012.0"`), evaluated by an arithmetic-only reader (`eval_coefficient()`). YAML's number parser gives a different double from R's for `B_Hv1 = 0.36591565341924093`, and reads `21000` as an integer; with R's parser every coefficient is identical to plant's formals. Do not switch a value to a bare YAML number.
+- **Both models match plant to the bit on the same platform** (216-row TF24 grid, both `filter` settings, overrides, all three TF24 variants, FF16 at two latitudes, empty and one-trait matrices; checked on macOS arm64 and ubuntu x86-64 CI). FF16's assimilation integral is summed by `trapezium_rows()` one interval at a time in double precision, as plant's C++ does: R's `sum()` and `cumsum()` accumulate in 80-bit long double on x86 Linux, and the `nls` fit amplified that to 3.5e-11 in `a_p1`. Do not vectorise that loop.
+- **Across platforms, agreement is to libm rounding, not the bit.** The committed baseline (written on macOS) and plant's C++ default stem curve differ from glibc's `pow()` by one ulp in `stem_P50`; those two checks use a tolerance of 1e-14 (TF24) and 1e-9 (FF16, whose fit amplifies trigonometry rounding).
+- **FF16 keeps plant's solar model unchanged, declination slip included** (`ff16_solar_angle()` uses sin δ as δ, about 0.6° low at the solstices). Correcting it moves `a_p1` and `a_p2`, so it is a deliberate science change for a later PR, not part of the port. The driver code (phase 2) uses the corrected form.
+- **The committed baseline** `tests/testthat/fixtures/tradeoff-baseline.rds` is plant's own output (recording the ref in `.plant-interface-version`), written by `data-raw/make-tradeoff-baseline.R` from a plain-list strategy and a full trait grid, so it does not depend on plant's C++ defaults and keeps testing the port after plant's copy changes.
+- `tradeoffs("K93")` is refused with a pointer to `hyperpar = NULL`. The closure carries `attr(f, "model")` and `attr(f, "coefficients")`.
+- **Open:** every coefficient's `source` is "plant default"; the `reference` fields (Zotero keys for Falster et al. and Dong et al. 2022) are empty until they are traced.
+
 ### plant changes
 
 PR A: trade-offs travel with `Parameters`; the testing set is explicit.
@@ -211,8 +221,8 @@ Later adapters, in this order: SILO (Australia, daily, has radiation and VPD), T
 
 ## Phased plan
 
-0. **fieldtrial first commit**: package skeleton, `PLAN.md` (this document, trimmed), `.plant-interface-version`, README with family boilerplate, board auto-add workflow, CI that installs plant@develop. Clone into plant-family. Open the tracking epic in fieldtrial; link plant #697, #698, #701. **plant-meta PR**: register fieldtrial as above.
-1. **fieldtrial PR: trade-offs** — port `make_FF16_hyperpar`/`make_TF24_hyperpar` as `tradeoffs()` with the simplifications above; coefficient YAMLs; bit-identity tests against plant's current functions over a trait grid; the stem_P50 invariant test.
+0. ✅ **fieldtrial first commit** (fieldtrial#2, plant-meta#9, 2026-11-09): package skeleton, `PLAN.md` (this document, trimmed), `.plant-interface-version`, README with family boilerplate, board auto-add workflow, CI that installs plant@develop. Clone into plant-family. Open the tracking epic in fieldtrial; link plant #697, #698, #701. **plant-meta PR**: register fieldtrial as above.
+1. 🔄 **fieldtrial PR: trade-offs** (in review) — port `make_FF16_hyperpar`/`make_TF24_hyperpar` as `tradeoffs()` with the simplifications above; coefficient YAMLs; bit-identity tests against plant's current functions over a trait grid; the stem_P50 invariant test.
 2. **fieldtrial PR: generators and adapters** — move `pulse_series.R`, `solar_model.R`, `soil_widths_graded`; add `swdown_clear_sky`, `apply_drivers`, canonical met schema, `met_from_fluxnet`, `met_from_plumber2`, `extract_agcd` (ported from the standalone script) + `met_from_agcd`, `met_from_worldclim`, `met_from_cru`, `met_climatology`. Tests on committed one-year excerpts.
 3. **plant PR A** (as above: `Parameters$hyperpar`, `default_parameters()` with warning, `testing_parameters()` helper, shims, `parameter_table()`, housekeeping). `scientific_version` unchanged (same numbers); goldens unchanged.
 4. **fieldtrial PR: sets** — `parameter_set()`, `check_set()`, `check_passthrough()`, `run_set()`, `mulga_alice_springs`, tall eucalypt; scenario CSVs re-expressed as sets; a vignette running each set end to end through `run_scm` via all four channels.

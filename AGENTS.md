@@ -10,6 +10,10 @@
 - **Parameter sets** (`inst/sets/*.yml`, `R/parameter_set.R`): one YAML per named species × site, with provenance. `parameter_set(name)` materialises the four objects `run_scm()` takes: `Parameters`, `Environment`, `Control`, `Events`.
 - **Environmental drivers** (`R/met*.R`, `R/apply_drivers.R`): a canonical daily met table (noon values plus diurnal amplitudes, not daytime means) and one adapter per source. Raw grids never enter the repo; sets ship small derived site series under `inst/extdata/met/`.
 
+## Checking against plant
+
+The tests compare against plant's own trade-off functions, so they need the plant recorded in `.plant-interface-version`, not an older site-library copy (whose C++ defaults may predate the stem-curve change, plant#611). Build odelia, phylloptim and plant at their pinned refs into a scratch library and run with `R_LIBS` pointing at it. `data-raw/make-tradeoff-baseline.R` regenerates the committed baseline from that plant; regenerate it only when plant's frozen copy is meant to have moved, and say so in the PR.
+
 ## Rules that bite
 
 - **Two copies of the trade-off forms exist by decision.** plant's is frozen (changing it re-blesses plant's goldens); this one is live. A bit-identity test here records when they diverge. Do not "fix" one to match the other without reading `PLAN.md` first.

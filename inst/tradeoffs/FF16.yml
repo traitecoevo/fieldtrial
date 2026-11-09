@@ -1,0 +1,125 @@
+# Trait trade-off coefficients for the FF16 plant model.
+#
+# Every `value` is a QUOTED R numeric expression (numeric literals and + - * / ^
+# only), read with R's parser so the doubles match plant's exactly.
+#
+# `source` records where the value came from. `reference` is for the
+# literature behind it, as a Zotero key; empty means not yet traced.
+model: FF16
+applies_to: [FF16]
+ported_from: "plant::make_FF16_hyperpar(), plant develop@ae869f13 (2026-11-09)"
+coefficients:
+  lma_0:
+    value: "0.1978791"
+    units: "kg m-2"
+    description: "Central (mean) value of leaf mass per area."
+    source: "plant default"
+    reference: ""
+  B_kl1:
+    value: "0.4565855"
+    units: "yr-1"
+    description: "Leaf turnover rate at lma_0."
+    source: "plant default"
+    reference: ""
+  B_kl2:
+    value: "1.71"
+    units: "dimensionless"
+    description: "Scaling slope of leaf turnover on leaf mass per area."
+    source: "plant default"
+    reference: ""
+  rho_0:
+    value: "608.0"
+    units: "kg m-3"
+    description: "Central (mean) value of wood density."
+    source: "plant default"
+    reference: ""
+  B_dI1:
+    value: "0.01"
+    units: "yr-1"
+    description: "Intrinsic mortality rate at rho_0."
+    source: "plant default"
+    reference: ""
+  B_dI2:
+    value: "0.0"
+    units: "dimensionless"
+    description: "Scaling slope of intrinsic mortality on wood density."
+    source: "plant default"
+    reference: ""
+  B_ks1:
+    value: "0.2"
+    units: "yr-1"
+    description: "Sapwood turnover rate at rho_0."
+    source: "plant default"
+    reference: ""
+  B_ks2:
+    value: "0.0"
+    units: "dimensionless"
+    description: "Scaling slope of sapwood turnover on wood density."
+    source: "plant default"
+    reference: ""
+  B_rs1:
+    value: "4012.0"
+    units: "mol CO2 yr-1 m-3"
+    description: "Sapwood respiration per unit sapwood volume; per unit mass it is B_rs1 / rho."
+    source: "plant default"
+    reference: ""
+  B_rb1:
+    value: "2.0 * 4012.0"
+    units: "mol CO2 yr-1 m-3"
+    description: "Bark respiration per unit bark volume, twice the sapwood rate by default."
+    source: "plant default"
+    reference: ""
+  B_f1:
+    value: "3.0"
+    units: "dimensionless"
+    description: "Cost of seed accessories per unit seed mass."
+    source: "plant default"
+    reference: ""
+  narea:
+    value: "1.87e-3"
+    units: "kg N m-2"
+    description: "Leaf nitrogen per area used when the trait matrix has no narea column."
+    source: "plant default"
+    reference: ""
+  narea_0:
+    value: "1.87e-3"
+    units: "kg N m-2"
+    description: "Central (mean) value of leaf nitrogen per area."
+    source: "plant default"
+    reference: ""
+  B_lf1:
+    value: "5120.738 * 1.87e-3 * 24 * 3600 / 1e+06"
+    units: "mol CO2 d-1 m-2"
+    description: "Maximum leaf photosynthesis at narea_0."
+    source: "plant default"
+    reference: ""
+  B_lf2:
+    value: "0.5"
+    units: "dimensionless"
+    description: "Curvature of the leaf photosynthetic light response."
+    source: "plant default"
+    reference: ""
+  B_lf3:
+    value: "0.04"
+    units: "dimensionless"
+    description: "Quantum yield of the leaf photosynthetic light response."
+    source: "plant default"
+    reference: ""
+  B_lf4:
+    value: "21000"
+    units: "mol CO2 yr-1 kg-1 N"
+    description: "Leaf respiration per unit leaf nitrogen."
+    source: "plant default"
+    reference: ""
+  B_lf5:
+    value: "1"
+    units: "dimensionless"
+    description: "Scaling exponent of maximum leaf photosynthesis on leaf nitrogen."
+    source: "plant default"
+    reference: ""
+  latitude:
+    value: "0"
+    units: "degrees"
+    description: "Latitude of the solar model behind the annual assimilation curve; its absolute value is used."
+    source: "plant default"
+    reference: ""

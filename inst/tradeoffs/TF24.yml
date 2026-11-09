@@ -1,0 +1,151 @@
+# Trait trade-off coefficients for the TF24 family of plant models.
+#
+# Every `value` is a QUOTED R numeric expression (numeric literals and + - * / ^
+# only). YAML's own number parser does not always give the double R's parser
+# gives for the same digits (B_Hv1 differs in its last bit), and these values
+# must reproduce plant's exactly, so they are read with R's parser.
+#
+# `source` records where the value came from. `reference` is for the
+# literature behind it, as a Zotero key; empty means not yet traced.
+model: TF24
+applies_to: [TF24, TF24f, TF24t, TF24w]
+ported_from: "plant::make_TF24_hyperpar(), plant develop@ae869f13 (2026-11-09)"
+coefficients:
+  lma_0:
+    value: "0.1978791"
+    units: "kg m-2"
+    description: "Central (mean) value of leaf mass per area."
+    source: "plant default"
+    reference: ""
+  B_kl1:
+    value: "0.4565855"
+    units: "yr-1"
+    description: "Leaf turnover rate at lma_0."
+    source: "plant default"
+    reference: ""
+  B_kl2:
+    value: "1.71"
+    units: "dimensionless"
+    description: "Scaling slope of leaf turnover on leaf mass per area."
+    source: "plant default"
+    reference: ""
+  rho_0:
+    value: "608.0"
+    units: "kg m-3"
+    description: "Central (mean) value of wood density."
+    source: "plant default"
+    reference: ""
+  B_dI1:
+    value: "0.01"
+    units: "yr-1"
+    description: "Intrinsic mortality rate at rho_0."
+    source: "plant default"
+    reference: ""
+  B_dI2:
+    value: "0.0"
+    units: "dimensionless"
+    description: "Scaling slope of intrinsic mortality on wood density."
+    source: "plant default"
+    reference: ""
+  B_hks1:
+    value: "7.5"
+    units: "dimensionless"
+    description: "TF24 hydraulic cost scale (TF24_cost_scale) at rho_0."
+    source: "plant default"
+    reference: ""
+  B_hks2:
+    value: "0.0"
+    units: "dimensionless"
+    description: "Scaling slope of the hydraulic cost scale on wood density."
+    source: "plant default"
+    reference: ""
+  B_ks1:
+    value: "0.2"
+    units: "yr-1"
+    description: "Sapwood turnover rate at rho_0."
+    source: "plant default"
+    reference: ""
+  B_ks2:
+    value: "0.0"
+    units: "dimensionless"
+    description: "Scaling slope of sapwood turnover on wood density."
+    source: "plant default"
+    reference: ""
+  B_rs1:
+    value: "4012.0"
+    units: "mol CO2 yr-1 m-3"
+    description: "Sapwood respiration per unit sapwood volume; per unit mass it is B_rs1 / rho."
+    source: "plant default"
+    reference: ""
+  B_rb1:
+    value: "2.0 * 4012.0"
+    units: "mol CO2 yr-1 m-3"
+    description: "Bark respiration per unit bark volume, twice the sapwood rate by default."
+    source: "plant default"
+    reference: ""
+  B_f1:
+    value: "3.0"
+    units: "dimensionless"
+    description: "Cost of seed accessories per unit seed mass."
+    source: "plant default"
+    reference: ""
+  a_lf1:
+    value: "0.535"
+    units: "g m-2"
+    description: "Intercept of structural leaf nitrogen per area on leaf mass per area."
+    source: "plant default; plant's documentation attributes the nitrogen relations to Dong et al. 2022"
+    reference: ""
+  B_lf1:
+    value: "0.009"
+    units: "g N per g leaf"
+    description: "Slope of structural leaf nitrogen per area on leaf mass per area (lma in g m-2)."
+    source: "plant default; plant's documentation attributes the nitrogen relations to Dong et al. 2022"
+    reference: ""
+  B_lf2:
+    value: "0.004"
+    units: "g N s umol-1"
+    description: "Slope of photosynthetic leaf nitrogen per area on vcmax_25."
+    source: "plant default; plant's documentation attributes the nitrogen relations to Dong et al. 2022"
+    reference: ""
+  B_lf3:
+    value: "0.0008"
+    units: "g N s umol-1"
+    description: "Slope of photosynthetic leaf nitrogen per area on jmax_25."
+    source: "plant default; plant's documentation attributes the nitrogen relations to Dong et al. 2022"
+    reference: ""
+  B_lf4:
+    value: "21000"
+    units: "mol CO2 yr-1 kg-1 N"
+    description: "Leaf respiration per unit structural leaf nitrogen."
+    source: "plant default"
+    reference: ""
+  B_lf5:
+    value: "40000"
+    units: "mol CO2 yr-1 kg-1 N"
+    description: "Leaf respiration per unit photosynthetic leaf nitrogen."
+    source: "plant default"
+    reference: ""
+  B_Hv1:
+    value: "0.36591565341924093"
+    units: "log10(-MPa)"
+    description: "log10 of stem_P50 at terminal-segment K_s = 1. Re-anchored in plant (traitecoevo/plant#615) when K_s became a tip conductivity, so that stem_P50 is unchanged at the default K_s. Whether the K_s to P50 relation should be keyed on tip conductivity at all is open (traitecoevo/phylloptim#49 for the height exponent)."
+    source: "plant default, re-anchored from 0.4607063 by -0.2 * log10(2.9782)"
+    reference: ""
+  B_Hv2:
+    value: "-0.2"
+    units: "dimensionless"
+    description: "Scaling slope of log10(stem_P50) on log10(K_s)."
+    source: "plant default"
+    reference: ""
+  B_c1:
+    value: "2.04"
+    units: "dimensionless"
+    description: "Vulnerability-curve shape stem_c at stem_P50 = 0."
+    source: "plant default"
+    reference: ""
+  B_c2:
+    value: "0"
+    units: "MPa-1"
+    description: "Exponential slope of the vulnerability-curve shape stem_c on stem_P50."
+    source: "plant default"
+    reference: ""

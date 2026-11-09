@@ -1,0 +1,30 @@
+Package: fieldtrial
+Title: Parameter Sets, Trait Trade-Offs and Environmental Drivers for the plant Model
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Daniel", "Falster", , "daniel.falster@unsw.edu.au", c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-9814-092X"))
+    )
+Description: Sets up runs of the plant forest model by bundling a site's
+    environment with a species' trait trade-offs and parameter sets. Holds
+    named parameter sets for species and sites, the functions that derive
+    model parameters from traits, and adapters that turn gridded and
+    flux-tower climate into the daily driver series plant reads.
+License: AGPL (>= 3)
+URL: https://github.com/traitecoevo/fieldtrial
+BugReports: https://github.com/traitecoevo/fieldtrial/issues
+Depends:
+    R (>= 4.5.0)
+Imports:
+    plant,
+    yaml
+Suggests:
+    testthat (>= 3.0.0),
+    terra,
+    ncdf4
+Remotes:
+    traitecoevo/plant@develop
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3

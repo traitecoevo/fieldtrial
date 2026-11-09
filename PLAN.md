@@ -1,10 +1,10 @@
 # Scoping `fieldtrial`: parameter sets + environmental drivers for `plant`
 
-Status: scoped 2026-11-09; phase 0 (this scaffold) in progress. Decisions taken with the owner are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
+Status: scoped 2026-11-09; phase 0 (this scaffold) in progress. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
 
 ## Context
 
-plant runs "out of the box" on defaults that record a development history rather than any species or site (#697). The trait→parameter trade-off functions (`*_hyperpar`) and the few driver generators plant has are mixed into the model package, the light driver is a constant (#701), and the parameter surface is opaque to users (#698). Nothing in the family holds a species parameter set or reads a gridded climate product; the only extraction code is the user's `agcd-extract` skill plus two copies in projects outside the family. Verbruggen's `capabilities.md` records the gap bluntly: "no reader for daily/half-hourly met files anywhere".
+plant runs "out of the box" on defaults that record a development history rather than any species or site (#697). The trait→parameter trade-off functions (`*_hyperpar`) and the few driver generators plant has are mixed into the model package, the light driver is a constant (#701), and the parameter surface is opaque to users (#698). Nothing in the family holds a species parameter set or reads a gridded climate product; the only extraction code is a maintainer's standalone AGCD script plus two copies in projects outside the family. Verbruggen's `capabilities.md` records the gap bluntly: "no reader for daily/half-hourly met files anywhere".
 
 `fieldtrial` will own: (1) named parameter sets for species and sites, (2) the trait trade-off functions and their coefficient sets, moved out of plant and simplified, (3) workflows that turn gridded and flux-tower climate into plant driver series, Australia first.
 
@@ -15,7 +15,7 @@ plant runs "out of the box" on defaults that record a development history rather
 - **Decided: a `Parameters` object carries its own trade-offs.** `param_hyperpar(p)` reads them from `p`; identity when none are attached. This is what lets regnans, logpile and fieldtrial sets all work through the same plant API without plant naming fieldtrial.
 - **Decided: first sets are mulga at Alice Springs (TF24) and a tall eucalypt (TF24); `mulga_delta` follows shortly** (Delta is one of the four mulga monitoring sites in `mulga_plots_data`, with Barcheka, Bendemere and Corrie Downs; no flux tower, so its met is AGCD plus gap-fill).
 - **Decided: pass-through scope is every parameter of the TF24 (TF24_floor cost curve) model, including TF24t's thermal fields, and no other stomatal model's parameters for now.** Sets carry a `model:` key and `check_passthrough(model)` is per model, so swapping models later is a new row, not a redesign.
-- **Decided: climate sources are pluggable adapters, with several in the first release:** FLUXNET Shuttle site packages (ONEFlux FULLSET half-hourly, CC-BY, 700+ sites, TERN's OzFlux towers released as `2026_r1`) as the primary site source, with PLUMBER2 NetCDF as a second reader of the same quantities; AGCD (Australia, monthly, from the existing skill); global grids WorldClim 2.1 (monthly climatology) and CRU TS (monthly series, 1901 onward). SILO, TerraClimate and ERA5-Land are later adapters.
+- **Decided: climate sources are pluggable adapters, with several in the first release:** FLUXNET Shuttle site packages (ONEFlux FULLSET half-hourly, CC-BY, 700+ sites, TERN's OzFlux towers released as `2026_r1`) as the primary site source, with PLUMBER2 NetCDF as a second reader of the same quantities; AGCD (Australia, monthly, from the existing extraction script); global grids WorldClim 2.1 (monthly climatology) and CRU TS (monthly series, 1901 onward). SILO, TerraClimate and ERA5-Land are later adapters.
 - **Decided: the canonical met table carries noon values and diurnal amplitudes, not daytime means.** This follows plant: `SWdown`'s default 900 W m⁻² is documented as clear-sky midday, and the `experiment/618-daily-integral` branch defines `SWdown(t)` and `atm_vpd(t)` as values at solar noon and rebuilds the day from latitude and a VPD amplitude driver. Daily means and extremes are kept as extra columns for diagnostics and for TF24t.
 - **Decided: public repo.** Private field data (mulga_plots_data) is cited, never committed; only derived publishable series ship.
 - **Decided: fieldtrial joins the plant-family workspace and plant-meta** (clone, dependency map, AGENTS.md tables, label sync list, board auto-add).
@@ -65,7 +65,7 @@ Blast radius: ~37 test files call `*_hyperpar` directly; ~50 call `trait_matrix`
 | `ATLS` | TF24t temperature-response table `meetings/2026.10/temp_model/R/params.R`. |
 | `floracle` | Empty. Forecast loop (#521) stays there. |
 
-**AGCD extraction exists as a skill:** `~/iCloud/Library/claude/skills/agcd-extract/scripts/extract_agcd.R` (terra only; sites CSV → long monthly CSV; one NetCDF per year; forces EPSG:4326; lon/lat swap check; 1e20 fill check; variables `precip/total`, `tmax/mean`, `tmin/mean`, `vapourpres_h09/mean`). Archive at `~/Library/CloudStorage/OneDrive-UNSW/data/2024 Mulga RG224311/projects/2025.02 Toby AGCD climate data analysis/Datasets/AGCD/v2-0-2/precip/total/r005/` (monthly 1900–2023). Copies in `~/GitHub/projects/Ford-ring_model` and `~/GitHub/projects/mulga_drone_imagery`.
+**AGCD extraction already exists as a standalone R script** held by the maintainers (terra only; sites CSV → long monthly CSV; one NetCDF per year; forces EPSG:4326; lon/lat swap check; 1e20 fill check; variables `precip/total`, `tmax/mean`, `tmin/mean`, `vapourpres_h09/mean`). The source is AGCD v2 on NCI (`gadi:/g/data/zv2/agcd`); a local copy of monthly precipitation 1900–2023 at 0.05° exists, and two mulga projects already hold outputs made with the script. It becomes `extract_agcd()` here.
 
 ## Design
 
@@ -80,12 +80,13 @@ fieldtrial/                       R package, Imports plant (sha-pinned), terra, 
   R/tradeoffs-ff16.R              narea+latitude -> a_p1, a_p2 (solar-day integral + nls), with its own trapezium()
   R/tradeoffs-tf24.R              K_s -> stem curve; lma/vcmax/jmax -> nmass_l, r_l
   R/parameter_set.R               parameter_set(name), check_set(), list_sets()
-  R/met.R                         canonical daily met table: read_met_plumber2(), met_from_agcd(), met_climatology()
+  R/met.R                         canonical daily met table, validate_met(), met_climatology(), met_sources()
+  R/met_from_*.R                  one adapter per source: fluxnet, plumber2, agcd, worldclim, cru
   R/apply_drivers.R               apply_drivers(env, met, t0, rainfall = c("pulse", "spline"))
   R/pulse_series.R                moved from plant unchanged
   R/solar.R                       solar_angle(), PAR_given_solar_angle(), swdown_clear_sky(lat, doy)  (#701)
   R/soil.R                        soil_widths_graded() (moved), cosby_from_texture() (Verbruggen)
-  R/extract_agcd.R                the skill's script as a function
+  R/extract_agcd.R                the standalone AGCD script, as a function
   inst/tradeoffs/{FF16,TF24}.yml  coefficient sets with per-coefficient source citations
   inst/sets/*.yml                 parameter sets
   inst/extdata/met/*.csv          small derived daily series only; never raw NetCDF
@@ -205,14 +206,14 @@ Later adapters, in this order: SILO (Australia, daily, has radiation and VPD), T
 
 ### Registration in the family
 
-- **plant-family workspace** (`/Users/z2209343/GitHub/plant-family/`): clone `traitecoevo/fieldtrial` beside the others. No workspace file enumerates repos (`.vscode/settings.json` only points cmake at phylloptim; `.claude/` is empty), so the clone is the whole step.
+- **plant-family workspace**: clone `traitecoevo/fieldtrial` beside the other family repos. Done 2026-11-09.
 - **plant-meta**: `dependencies.yml` gains a `fieldtrial` entry under `packages` (kind r-package; role: parameter sets, trait trade-offs, driver tables for plant runs; `r_imports: [plant, terra, yaml]`; `r_depends` pin via `.plant-interface-version`; `data_consumes` from AGCD, PLUMBER2, WorldClim, CRU, mulga-library, phytofile; `produces` trade-off functions, parameter sets, driver tables) plus two `cross_boundary_artifacts` rows (trait trade-offs: fieldtrial → plant runs, regnans, logpile; parameter sets + driver tables: fieldtrial → plant, floracle). `AGENTS.md`: add to the model-core table, both graphs, the source-of-truth table ("recommended trade-offs and species/site sets → fieldtrial; plant's `default_parameters()` is a frozen testing set"), and a gotcha for the two-copies rule. `governance/apply-labels.sh`: add `traitecoevo/fieldtrial` to the repo list; `project-board.md`: name it; `triage.md`: default branch `fieldtrial → main`. Install the `add-to-project` workflow in fieldtrial per `auto-add-to-board.md`. Fieldtrial's README carries the family boilerplate from floracle's README.
 
 ## Phased plan
 
 0. **fieldtrial first commit**: package skeleton, `PLAN.md` (this document, trimmed), `.plant-interface-version`, README with family boilerplate, board auto-add workflow, CI that installs plant@develop. Clone into plant-family. Open the tracking epic in fieldtrial; link plant #697, #698, #701. **plant-meta PR**: register fieldtrial as above.
 1. **fieldtrial PR: trade-offs** — port `make_FF16_hyperpar`/`make_TF24_hyperpar` as `tradeoffs()` with the simplifications above; coefficient YAMLs; bit-identity tests against plant's current functions over a trait grid; the stem_P50 invariant test.
-2. **fieldtrial PR: generators and adapters** — move `pulse_series.R`, `solar_model.R`, `soil_widths_graded`; add `swdown_clear_sky`, `apply_drivers`, canonical met schema, `met_from_plumber2`, `extract_agcd` (from the skill) + `met_from_agcd`, `met_from_worldclim`, `met_from_cru`, `met_climatology`. Tests on committed one-year excerpts.
+2. **fieldtrial PR: generators and adapters** — move `pulse_series.R`, `solar_model.R`, `soil_widths_graded`; add `swdown_clear_sky`, `apply_drivers`, canonical met schema, `met_from_fluxnet`, `met_from_plumber2`, `extract_agcd` (from the skill) + `met_from_agcd`, `met_from_worldclim`, `met_from_cru`, `met_climatology`. Tests on committed one-year excerpts.
 3. **plant PR A** (as above: `Parameters$hyperpar`, `default_parameters()` with warning, `testing_parameters()` helper, shims, `parameter_table()`, housekeeping). `scientific_version` unchanged (same numbers); goldens unchanged.
 4. **fieldtrial PR: sets** — `parameter_set()`, `check_set()`, `check_passthrough()`, `run_set()`, `mulga_alice_springs`, tall eucalypt; scenario CSVs re-expressed as sets; a vignette running each set end to end through `run_scm` via all four channels.
 5. **regnans**: `plant_default_assembly_pars()` loads `default_parameters("FF16", quiet = TRUE)` or a fieldtrial set; bump `.plant-interface-version`. **logpile**: hash `param_hyperpar(p)` instead of `make_hyperpar(model)`. **overstorey**: `guides/extrinsic-drivers.qmd` fixes the stale PPFD row and gains a "from a met file" section; default-parameter claims read `parameter_table()` so they cannot rot.
@@ -227,4 +228,4 @@ Out of scope, recorded so nobody absorbs it: forecasting draws and driver uncert
 - fieldtrial noon fit: on a FLUXNET Shuttle AU-ASM year, `SWdown_noon` × the clear-sky shape integrates to within a stated tolerance of the observed daily `SW_IN_F` sum on clear days, and `VPD_noon`/`VPD_amp` reproduce the observed daily VPD integral; the 618 synthetic sites round-trip through `apply_drivers()`.
 - fieldtrial adapters: `met_from_worldclim()` and `met_from_cru()` at the AU-ASM coordinates give mean annual rainfall within the published site value's range, and the four adapters' outputs pass one schema check (`validate_met()`).
 - plant PR A: full `test_check` without fieldtrial installed is identical to develop (default baselines and goldens unchanged, through `testing_parameters()`); `default_parameters("TF24")` warns once and `scm_base_parameters("TF24")` attaches no trade-offs; regnans and logpile test suites pass against the PR branch through the shims; `parameter_table("TF24")` lists the 13 derived parameters.
-- Each PR gets the independent `/delegate-copilot` review on open, per the global rule.
+- Each PR gets an independent review from a second model on open; findings are checked against the code before they are fixed or rejected.

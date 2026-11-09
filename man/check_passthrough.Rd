@@ -24,7 +24,10 @@ parameter that plant does not yet forward shows up as a gap to fix in
 plant, not as a value a set silently cannot change.
 }
 \details{
-Parameters of the leaf's other stomatal models (\code{JS22_gamma}, \code{CMax_a},
-\code{CMax_b}) are listed as out of scope: plant's TF24 does not select those
-models.
+Two kinds of leaf parameter are listed as out of scope rather than gaps:
+those of the leaf's other stomatal models (\code{JS22_gamma}, \code{CMax_a},
+\code{CMax_b}), which plant's TF24 does not select, and \code{integration_tol}, which
+only sets the tolerance of a direct quadrature off the production path that
+plant never calls. A plant field for either would be settable and reach
+nothing.
 }

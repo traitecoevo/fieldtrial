@@ -12,8 +12,10 @@ test_that("TF24 trade-offs match plant's to the bit", {
                      ref()(one, s, filter = filter))
   }
   empty <- matrix(numeric(0), 0, 1, dimnames = list(NULL, "lma"))
-  expect_identical(tradeoffs("TF24")(empty, s, filter = FALSE),
-                   ref()(empty, s, filter = FALSE))
+  for (filter in c(FALSE, TRUE)) {
+    expect_identical(tradeoffs("TF24")(empty, s, filter = filter),
+                     ref()(empty, s, filter = filter))
+  }
 })
 
 test_that("overridden coefficients match plant's arguments", {

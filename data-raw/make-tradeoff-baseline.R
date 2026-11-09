@@ -3,8 +3,10 @@
 ## plant even after plant's copy changes or goes.
 ##
 ## Run from the package root, against the plant recorded in
-## .plant-interface-version:
+## .plant-interface-version, with that plant first on the library path:
 ##   Rscript data-raw/make-tradeoff-baseline.R
+## The baseline records that ref. A plant installed by remotes/pak carries its
+## commit, and a mismatch with the recorded ref is refused.
 ##
 ## The strategy argument is a plain list holding the one strategy value the
 ## trade-offs read (FF16's k_I), and every trait is a column of the grid, so the
@@ -21,8 +23,17 @@ grids <- list(
     omega = 3.8e-5, narea = c(1e-3, 1.87e-3, 3e-3))))
 strategy <- list(pars = list(k_I = 0.5))
 
+pin <- yaml::read_yaml(".plant-interface-version")
+plant_ref <- sub("^develop@([0-9a-f]+).*$", "\\1", pin$plant_ref)
+installed_sha <- packageDescription("plant")$RemoteSha
+if (!is.null(installed_sha) &&
+    !startsWith(installed_sha, plant_ref)) {
+  stop("The installed plant is ", installed_sha, ", not the pinned ",
+       plant_ref, "; install the pinned plant first")
+}
+
 baseline <- list(
-  plant_ref = system("git -C ../plant rev-parse --short HEAD", intern = TRUE),
+  plant_ref = plant_ref,
   plant_version = as.character(packageVersion("plant")),
   strategy = strategy,
   grids = grids,

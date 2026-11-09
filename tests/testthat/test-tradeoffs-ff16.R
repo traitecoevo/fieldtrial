@@ -14,6 +14,19 @@ test_that("FF16 trade-offs match plant's to rounding", {
   }
 })
 
+test_that("FF16 matches plant on a one-trait and an empty matrix", {
+  ref <- plant_reference("make_FF16_hyperpar")
+  s <- plant::FF16_Strategy()
+  one <- plant::trait_matrix(0.1, "lma")
+  empty <- matrix(numeric(0), 0, 1, dimnames = list(NULL, "narea"))
+  for (filter in c(FALSE, TRUE)) {
+    expect_equal(tradeoffs("FF16")(one, s, filter = filter),
+                 ref()(one, s, filter = filter), tolerance = ff16_tolerance)
+    expect_identical(tradeoffs("FF16")(empty, s, filter = filter),
+                     ref()(empty, s, filter = filter))
+  }
+})
+
 test_that("FF16 at another latitude matches plant", {
   ref <- plant_reference("make_FF16_hyperpar")
   s <- plant::FF16_Strategy()

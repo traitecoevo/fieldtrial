@@ -12,6 +12,11 @@ test_that("a set builds all four of run_scm's inputs from its file", {
   expect_identical(pars$r_s, unname(derived[1, "r_s"]))
   ## A parameter set directly.
   expect_identical(pars$hmat, 8)
+  ## The set's trade-offs travel with its Parameters.
+  if ("hyperpar" %in% names(set$p)) {
+    expect_identical(plant::param_hyperpar(set$p)(cbind(lma = 0.1), set$p$strategy_default),
+                     set$tradeoffs(cbind(lma = 0.1), set$p$strategy_default))
+  }
   expect_identical(set$p$max_patch_lifetime, 1)
   expect_identical(set$p$strategies[[1]]$birth_rate_y, 2)
   ## Soil, environment field, drivers, control.
@@ -93,4 +98,33 @@ test_that("TF24t's thermal fields are set through the strategy block", {
 test_that("sets are found by name or path", {
   expect_type(list_sets(), "character")
   expect_error(parameter_set("no_such_set"), "No set \"no_such_set\"")
+})
+
+test_that("a set's soil parameters reach plant once per layer", {
+  ## plant keeps per-layer soil parameters with no getter, so the call is
+  ## checked on its way in, then made.
+  real <- plant::set_tf24_soil
+  seen <- NULL
+  local_mocked_bindings(
+    set_tf24_soil = function(env, ...) { seen <<- list(...); real(env, ...) },
+    .package = "plant")
+  parameter_set(test_set(), drivers = FALSE)
+  expect_identical(seen$soil_moist_sat, rep(0.4, 4))
+  expect_length(seen$widths, 4L)
+  expect_identical(seen$theta, 0.3)
+  expect_null(seen$K_sat)
+
+  ## Every soil parameter, given once for the column, reaches plant per layer.
+  seen <- NULL
+  env <- plant::Environment("TF24")
+  apply_soil(env, list(
+    depth = list(value = 1.2, source = "x"), n_layers = list(value = 3, source = "x"),
+    K_sat = list(value = 50, source = "x"), a_psi = list(value = 2e-3, source = "x"),
+    n_psi = list(value = 5, source = "x"), soil_moist_sat = list(value = 0.38, source = "x"),
+    theta = list(value = 0.2, source = "x")))
+  expect_identical(seen$K_sat, rep(50, 3))
+  expect_identical(seen$a_psi, rep(2e-3, 3))
+  expect_identical(seen$n_psi, rep(5, 3))
+  expect_identical(seen$soil_moist_sat, rep(0.38, 3))
+  expect_identical(seen$theta, 0.2)
 })

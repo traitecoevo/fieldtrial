@@ -8,9 +8,12 @@
 #' parameter that plant does not yet forward shows up as a gap to fix in
 #' plant, not as a value a set silently cannot change.
 #'
-#' Parameters of the leaf's other stomatal models (`JS22_gamma`, `CMax_a`,
-#' `CMax_b`) are listed as out of scope: plant's TF24 does not select those
-#' models.
+#' Two kinds of leaf parameter are listed as out of scope rather than gaps:
+#' those of the leaf's other stomatal models (`JS22_gamma`, `CMax_a`,
+#' `CMax_b`), which plant's TF24 does not select, and `integration_tol`, which
+#' only sets the tolerance of a direct quadrature off the production path that
+#' plant never calls. A plant field for either would be settable and reach
+#' nothing.
 #'
 #' @param model A TF24-family model name.
 #' @return A data frame with columns `name`, `kind` (`"trait"` or
@@ -33,7 +36,7 @@ check_passthrough <- function(model = "TF24") {
   leaf_control <- getExportedValue(pkg, "leaf_control")
   s <- get(paste0(model, "_Strategy"), envir = asNamespace("plant"))()
   ctrl <- plant::control()
-  out_of_scope <- c("JS22_gamma", "CMax_a", "CMax_b")
+  out_of_scope <- c("JS22_gamma", "CMax_a", "CMax_b", "integration_tol")
   ## The leaf's quadrature rule is plant's function_integration_rule.
   control_alias <- c(integration_rule = "function_integration_rule")
 
@@ -45,7 +48,9 @@ check_passthrough <- function(model = "TF24") {
   }
   where_control <- function(n) {
     target <- if (n %in% names(control_alias)) control_alias[[n]] else n
-    if (target %in% names(ctrl)) "Control" else NA_character_
+    if (target %in% names(ctrl)) "Control"
+    else if (n %in% out_of_scope) "out of scope"
+    else NA_character_
   }
   traits <- names(leaf_traits())
   controls <- names(leaf_control())

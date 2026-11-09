@@ -1,5 +1,5 @@
 test_that("FF16 trade-offs match plant's to the bit", {
-  ref <- plant_reference("make_FF16_hyperpar")
+  ref <- plant_frozen("FF16")
   s <- plant::FF16_Strategy()
   m <- ff16_grid()
   for (filter in c(FALSE, TRUE)) {
@@ -10,7 +10,7 @@ test_that("FF16 trade-offs match plant's to the bit", {
 })
 
 test_that("FF16 matches plant on a one-trait and an empty matrix", {
-  ref <- plant_reference("make_FF16_hyperpar")
+  ref <- plant_frozen("FF16")
   s <- plant::FF16_Strategy()
   one <- plant::trait_matrix(0.1, "lma")
   empty <- matrix(numeric(0), 0, 1, dimnames = list(NULL, "narea"))
@@ -23,7 +23,7 @@ test_that("FF16 matches plant on a one-trait and an empty matrix", {
 })
 
 test_that("FF16 at another latitude matches plant", {
-  ref <- plant_reference("make_FF16_hyperpar")
+  ref <- plant_frozen("FF16")
   s <- plant::FF16_Strategy()
   m <- ff16_grid()
   expect_identical(tradeoffs("FF16", list(latitude = 30))(m, s, FALSE),
@@ -33,7 +33,7 @@ test_that("FF16 at another latitude matches plant", {
 test_that("FF16 declares narea as a trait it reads but does not assign", {
   f <- tradeoffs("FF16")
   expect_identical(attr(f, "input_traits"),
-                   attr(plant_reference("make_FF16_hyperpar")(), "input_traits"))
+                   attr(plant_frozen("FF16")(), "input_traits"))
 })
 
 test_that("a flat assimilation curve is returned without a fit", {

@@ -37,8 +37,8 @@ baseline <- list(
   plant_version = as.character(packageVersion("plant")),
   strategy = strategy,
   grids = grids,
-  TF24 = plant::make_TF24_hyperpar()(grids$TF24, strategy, filter = FALSE),
-  FF16 = plant::make_FF16_hyperpar()(grids$FF16, strategy, filter = FALSE),
-  FF16_latitude_30 = plant::make_FF16_hyperpar(latitude = 30)(
+  TF24 = plant::default_hyperpar("TF24")(grids$TF24, strategy, filter = FALSE),
+  FF16 = plant::default_hyperpar("FF16")(grids$FF16, strategy, filter = FALSE),
+  FF16_latitude_30 = plant::default_hyperpar("FF16", latitude = 30)(
     grids$FF16, strategy, filter = FALSE))
 saveRDS(baseline, "tests/testthat/fixtures/tradeoff-baseline.rds", version = 3)

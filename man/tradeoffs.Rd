@@ -14,9 +14,10 @@ tradeoffs(model, coefficients = list())
 in \code{\link[=tradeoff_coefficients]{tradeoff_coefficients()}}. Unknown names are refused.}
 }
 \value{
-A function \code{f(m, s, filter = TRUE)}. FF16's carries
-\code{attr(f, "input_traits")}, naming the traits it reads that are not
-parameters of the model.
+A function \code{f(m, s, filter = TRUE)}, carrying \code{attr(f, "model")},
+\code{attr(f, "coefficients")} and \code{attr(f, "traits")} (every trait-matrix
+column it reads). FF16's also carries \code{attr(f, "input_traits")}, naming
+the traits it reads that are not parameters of the model.
 }
 \description{
 Builds the function plant uses to derive model parameters from traits: it

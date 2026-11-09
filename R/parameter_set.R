@@ -48,6 +48,9 @@ driver_keys <- c("source", "file", "res", "repeat", "set", "rainfall", "leaf_tem
 #' @param set A set name from `list_sets()`, a path to a set file, or a
 #'   `fieldtrial_set`.
 #' @param check Whether to run `check_set()` on the result.
+#' @param drivers Whether to build the set's drivers. `FALSE` builds
+#'   everything else, leaving the environment's drivers at plant's values and
+#'   `events` empty, so a set can be checked without its climate data.
 #' @param driver_path Where downloaded climate data are kept, for sets whose
 #'   drivers come from a gridded source.
 #' @return `parameter_set()`: a list of class `fieldtrial_set` with `p`, `env`,
@@ -56,7 +59,7 @@ driver_keys <- c("source", "file", "res", "repeat", "set", "rainfall", "leaf_tem
 #'   `plant::run_scm()`. `check_set()`: `set`, invisibly. `list_sets()`: the
 #'   names of the sets in the package.
 #' @export
-parameter_set <- function(set, check = TRUE,
+parameter_set <- function(set, check = TRUE, drivers = TRUE,
                           driver_path = fieldtrial_cache("worldclim")) {
   if (inherits(set, "fieldtrial_set")) return(set)
   path <- set_path(set)
@@ -103,6 +106,9 @@ parameter_set <- function(set, check = TRUE,
   m <- matrix(unlist(traits), nrow = 1, dimnames = list(NULL, names(traits)))
   p <- plant::add_strategies(p, m, tf, birth_rate = as.numeric(run$birth_rate %||% 1),
                              keep_existing = FALSE)
+  ## plant's Parameters carry their trade-offs, so mutants, gradients and
+  ## anything else built from p later use the set's, not plant's testing copy.
+  if ("hyperpar" %in% names(p)) p$hyperpar <- tf
 
   ## Environment: soil, other fields, drivers.
   env <- plant::Environment(model)
@@ -114,7 +120,11 @@ parameter_set <- function(set, check = TRUE,
     if (!has_field(env, key)) refuse_key("environment$fields", key, sprintf("a field of %s's environment", model))
     env[[key]] <- values_of(env_spec$fields[key], "environment$fields")[[key]]
   }
-  drivers <- build_drivers(meta, env, path, p$max_patch_lifetime, driver_path)
+  built <- if (drivers) {
+    build_drivers(meta, env, path, p$max_patch_lifetime, driver_path)
+  } else {
+    list(met = NULL, events = NULL)
+  }
 
   ## Control.
   ctrl <- plant::control()
@@ -123,8 +133,8 @@ parameter_set <- function(set, check = TRUE,
     ctrl[[key]] <- match_type(meta$control[[key]], ctrl[[key]])
   }
 
-  set <- structure(list(p = p, env = env, ctrl = ctrl, events = drivers$events,
-                        tradeoffs = tf, met = drivers$met, meta = meta),
+  set <- structure(list(p = p, env = env, ctrl = ctrl, events = built$events,
+                        tradeoffs = tf, met = built$met, meta = meta),
                    class = "fieldtrial_set")
   if (check) check_set(set)
   set
@@ -242,9 +252,15 @@ apply_soil <- function(env, soil) {
     }
     widths <- soil_widths_graded(v$depth, v$n_layers, v$top %||% 0.02)
   }
+  ## plant takes the soil parameters one value per layer, and a set gives one
+  ## for the column. Initial moisture (theta) plant itself spreads over the
+  ## layers when given one value.
+  n <- if (is.null(widths)) env$get_soil_number_of_depths() else length(widths)
+  per_layer <- function(x) if (is.null(x)) NULL else rep(x, n)
   plant::set_tf24_soil(env, widths = widths, theta = v$theta,
-                       soil_moist_sat = v$soil_moist_sat, K_sat = v$K_sat,
-                       a_psi = v$a_psi, n_psi = v$n_psi)
+                       soil_moist_sat = per_layer(v$soil_moist_sat),
+                       K_sat = per_layer(v$K_sat), a_psi = per_layer(v$a_psi),
+                       n_psi = per_layer(v$n_psi))
   invisible(env)
 }
 

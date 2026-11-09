@@ -1,6 +1,7 @@
 # The plant ref this package was last built and checked against, and the plant
 # breaking changes it has absorbed. Same convention as regnans.
-migrated_on: 2026-11-09
+migrated_on: 2026-11-10
 plant_version: 2.0.0.9002
-plant_ref: develop@ae869f13 (2026-11-09; odelia 0.11.0 @v0.11.0, phylloptim 0.31.0 @bf99fdf)
-applied_breaking_changes: []
+plant_ref: develop@218501e1 (2026-11-10; odelia 0.11.0 @v0.11.0, phylloptim 0.35.0 @58d8360)
+applied_breaking_changes:
+  - tradeoffs-travel-with-parameters  # bare scm_base_parameters() attaches no trade-offs; *_hyperpar removed -> default_hyperpar(); sets attach theirs to p$hyperpar

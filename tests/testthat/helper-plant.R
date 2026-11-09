@@ -1,12 +1,12 @@
-## plant's own trade-off function of that name, or skip if plant no longer
-## has it. The committed baseline (test-tradeoff-baseline.R) covers the port
-## after that.
-plant_reference <- function(name) {
-  ns <- asNamespace("plant")
-  if (!exists(name, envir = ns, inherits = FALSE)) {
-    testthat::skip(sprintf("plant has no %s to compare against", name))
+## plant's frozen testing copy of a model's trade-offs, as a maker: ref() is
+## the closure at plant's coefficients, ref(B_Hv2 = -0.3) with an override.
+## Skips on a plant without default_hyperpar(); the committed baseline
+## (test-tradeoff-baseline.R) still checks the port there.
+plant_frozen <- function(model) {
+  if (!exists("default_hyperpar", envir = asNamespace("plant"), inherits = FALSE)) {
+    testthat::skip("plant has no default_hyperpar() to compare against")
   }
-  get(name, envir = ns)
+  function(...) plant::default_hyperpar(model, ...)
 }
 
 tf24_grid <- function() {

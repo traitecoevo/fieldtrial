@@ -14,6 +14,7 @@ environment:
     depth: {value: 1.5, source: "test fixture"}
     n_layers: {value: 4, source: "test fixture"}
     theta: {value: 0.3, source: "test fixture"}
+    soil_moist_sat: {value: 0.4, source: "test fixture"}
   fields:
     f_PAR: {value: 0.48, source: "test fixture"}
 drivers:

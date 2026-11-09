@@ -17,6 +17,14 @@ strategy_plumbing <- c("pars", "control", "collect_all_auxiliary",
 soil_keys <- c("depth", "n_layers", "top", "theta", "soil_moist_sat", "K_sat",
                "a_psi", "n_psi")
 
+## Run settings a set may give: fields of plant's Parameters that
+## add_strategies() leaves alone (it rewrites the strategies and their node
+## schedules), plus the strategy's birth rate.
+run_keys <- c("max_patch_lifetime", "patch_area", "n_patches", "patch_type",
+              "fitness_window_start", "fitness_window_end", "birth_rate")
+
+driver_keys <- c("source", "file", "res", "repeat", "set", "rainfall", "leaf_temp")
+
 #' Parameter sets for species and sites
 #'
 #' A parameter set bundles everything one run of plant needs for a species at
@@ -60,7 +68,9 @@ parameter_set <- function(set, check = TRUE,
   p <- plant::scm_base_parameters(model)
   run <- meta$run %||% list()
   for (key in setdiff(names(run), "birth_rate")) {
-    if (!key %in% names(p)) refuse_key("run", key, "a field of plant's Parameters")
+    if (!key %in% run_keys || !key %in% names(p)) {
+      refuse_key("run", key, paste("one of", paste(run_keys, collapse = ", ")))
+    }
     p[[key]] <- match_type(run[[key]], p[[key]])
   }
   tf <- tradeoffs(model, values_of(meta$tradeoff_coefficients, "tradeoff_coefficients"))
@@ -225,9 +235,10 @@ apply_soil <- function(env, soil) {
   if (length(unknown) > 0L) refuse_key("environment$soil", unknown[1], paste(soil_keys, collapse = ", "))
   v <- values_of(soil, "environment$soil")
   widths <- NULL
-  if (!is.null(v$depth) || !is.null(v$n_layers)) {
+  if (!is.null(v$depth) || !is.null(v$n_layers) || !is.null(v$top)) {
     if (is.null(v$depth) || is.null(v$n_layers)) {
-      stop("environment$soil needs both depth and n_layers", call. = FALSE)
+      stop("environment$soil needs both depth and n_layers to make a profile ",
+           "(top only sets its surface layer)", call. = FALSE)
     }
     widths <- soil_widths_graded(v$depth, v$n_layers, v$top %||% 0.02)
   }
@@ -242,6 +253,8 @@ apply_soil <- function(env, soil) {
 build_drivers <- function(meta, env, path, max_patch_lifetime, driver_path) {
   spec <- meta$drivers
   if (is.null(spec)) return(list(met = NULL, events = NULL))
+  unknown <- setdiff(names(spec), driver_keys)
+  if (length(unknown) > 0L) refuse_key("drivers", unknown[1], paste("one of", paste(driver_keys, collapse = ", ")))
   site <- meta$site %||% list()
   source <- spec$source %||% ""
   met <- switch(source,
@@ -253,6 +266,19 @@ build_drivers <- function(meta, env, path, max_patch_lifetime, driver_path) {
   n_years <- max(1L, as.integer(ceiling(max_patch_lifetime)))
   if (!is.null(attr(met, "climatology_of")) || isTRUE(spec[["repeat"]])) {
     met <- met_repeat(met, n_years)
+  }
+  ## A run starts at time 0, the start of 1 January of the table's first year,
+  ## and must end inside the table.
+  if (format(met$date[1], "%m-%d") != "01-01") {
+    stop("The met table must start on 1 January: a run starts at time 0, ",
+         "the start of its first year", call. = FALSE)
+  }
+  covered <- met_time(met$date[nrow(met)], as.integer(format(met$date[1], "%Y"))) +
+    0.5 / (365 + is_leap(as.integer(format(met$date[nrow(met)], "%Y"))))
+  if (covered < max_patch_lifetime) {
+    stop(sprintf(paste0("The met table covers %.3g years and the run is %.3g; ",
+                        "give a longer record or set drivers$repeat: true"),
+                 covered, max_patch_lifetime), call. = FALSE)
   }
   drivers <- c(spec$set %||% c("SWdown", "atm_vpd", "atm_vpd_diurnal_amp", "atm_kpa",
                                "wind_speed", "ca", "rainfall"),

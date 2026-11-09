@@ -52,13 +52,31 @@ test_that("keys that reach nothing are refused, not dropped", {
   refuse("  hmat: {value: 8", "  r_l: {value: 8", "would be overwritten")
   refuse("  hmat: {value: 8, source: \"test fixture\"}", "  hmat: {value: 8}", "hmat has no source")
   ## Unknown keys elsewhere.
-  refuse("run: {max_patch_lifetime: 1", "run: {max_patch_life: 1", "max_patch_life is not a field of plant's Parameters")
+  refuse("run: {max_patch_lifetime: 1", "run: {max_patch_life: 1", "max_patch_life is not one of")
   refuse("control: {GSS_tol_abs", "control: {GSS_tolerance", "GSS_tolerance is not a field of plant's Control")
   refuse("    f_PAR: {value", "    fPAR: {value", "fPAR is not a field of TF24's environment")
   refuse("    theta: {value", "    thetas: {value", "thetas is not depth, n_layers")
   refuse("provenance:", "provenanse:", "provenanse is not schema")
   refuse("schema: 1", "schema: 2", "has schema 2")
+  ## Values add_strategies() would overwrite, a driver option nobody reads, a
+  ## surface-layer width with no profile.
+  refuse("run: {max_patch_lifetime: 1", "run: {node_schedule_times: 1, max_patch_lifetime: 1",
+         "node_schedule_times is not one of")
+  refuse("  repeat: true", "  repeat: true\n  repaet: true", "repaet is not one of")
+  refuse("    depth: {value: 1.5, source: \"test fixture\"}",
+         "    top: {value: 0.01, source: \"test fixture\"}", "needs both depth and n_layers")
   refuse("  source: met_file", "  source: silo", "must be \"worldclim\" or \"met_file\"")
+})
+
+test_that("a met record must start on 1 January and cover the run", {
+  path <- test_set(function(x) sub("  repeat: true", "  repeat: false", x, fixed = TRUE))
+  long <- sub("max_patch_lifetime: 1,", "max_patch_lifetime: 3,", readLines(path), fixed = TRUE)
+  writeLines(long, path)
+  expect_error(parameter_set(path), "covers 1 years and the run is 3")
+  met <- utils::read.csv(file.path(dirname(path), "test_met.csv"))
+  utils::write.csv(met[-1, ], file.path(dirname(path), "test_met.csv"), row.names = FALSE)
+  writeLines(sub("max_patch_lifetime: 3,", "max_patch_lifetime: 0.5,", long, fixed = TRUE), path)
+  expect_error(parameter_set(path), "must start on 1 January")
 })
 
 test_that("TF24t's thermal fields are set through the strategy block", {

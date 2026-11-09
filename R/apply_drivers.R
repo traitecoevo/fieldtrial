@@ -3,7 +3,7 @@ driver_map <- data.frame(
   driver = c("SWdown", "atm_vpd", "atm_vpd_diurnal_amp", "atm_kpa",
              "wind_speed", "ca", "leaf_temp"),
   column = c("SWdown_noon", "VPD_noon", "VPD_amp", "Psurf", "Wind", "CO2air",
-             "Tair_mean"),
+             "Tair_noon"),
   stringsAsFactors = FALSE)
 
 #' Set a plant environment's drivers from a daily met table
@@ -19,12 +19,14 @@ driver_map <- data.frame(
 #' | `Psurf` | `atm_kpa` | none, kPa |
 #' | `Wind` | `wind_speed` | none, m s-1 |
 #' | `CO2air` | `ca` | ppm to Pa at `Psurf`, or at the environment's `atm_kpa` |
-#' | `Tair_mean` | `leaf_temp` | only if `"leaf_temp"` is in `drivers` |
+#' | `Tair_noon` | `leaf_temp` | only if `"leaf_temp"` is in `drivers` |
 #' | `Precip` | rainfall | see `rainfall` |
 #'
 #' `leaf_temp` is left at plant's value unless asked for, because plant's TF24
 #' runs its leaf at that temperature with the energy balance off, and a site's
-#' air temperature changes every temperature response at once.
+#' air temperature changes every temperature response at once. When asked for,
+#' it is the noon temperature, like every other driver here: the daily mean
+#' would pair a noon VPD with a cooler, less saturable air.
 #'
 #' Rainfall is delivered as **pulses** by default: each wet day's total, in
 #' metres, at the middle of the day, as rows from `plant::rainfall_pulse()`, and
@@ -67,6 +69,12 @@ apply_drivers <- function(env, met, start_year = NULL,
                           until = NULL) {
   rainfall <- match.arg(rainfall)
   validate_met(met)
+  if (rainfall == "pulse" && "rainfall" %in% drivers && "Precip" %in% names(met) &&
+      !is.null(attr(met, "climatology_of"))) {
+    warning("This table is a climatology, whose rain falls a little on every ",
+            "day; as pulses that is a daily drizzle. Use rainfall = \"spline\", ",
+            "or draw pulses from a record with pulse_series_fit().", call. = FALSE)
+  }
   known <- c(driver_map$driver, "rainfall")
   if (length(setdiff(drivers, known)) > 0L) {
     stop("Unknown driver(s): ", paste(setdiff(drivers, known), collapse = ", "),
@@ -95,13 +103,13 @@ apply_drivers <- function(env, met, start_year = NULL,
 
   ## Leaf temperature the VPD will meet, then the VPD check, before anything is
   ## changed.
-  if ("leaf_temp" %in% drivers && "Tair_mean" %in% names(met)) {
-    leaf_temp <- met$Tair_mean
+  if ("leaf_temp" %in% drivers && "Tair_noon" %in% names(met)) {
+    leaf_temp <- met$Tair_noon
   } else {
     leaf_temp <- env$extrinsic_drivers_evaluate_range("leaf_temp", t)
   }
   if ("atm_vpd" %in% drivers && "VPD_noon" %in% names(met)) {
-    e_s <- 0.6108 * exp(17.27 * leaf_temp / (leaf_temp + 237.3))
+    e_s <- saturation_vapour_pressure(leaf_temp)
     bad <- !(met$VPD_noon > 0 & met$VPD_noon < e_s)
     if (any(bad)) {
       i <- which(bad)[1]
@@ -166,6 +174,13 @@ apply_drivers <- function(env, met, start_year = NULL,
     }
   }
   list(env = env, events = events, drivers = status)
+}
+
+## Saturation vapour pressure, kPa, at temp degC: the Tetens form and constants
+## of plant's leaf (phylloptim Leaf::saturation_vapour_pressure), so a VPD
+## accepted here is one the leaf accepts.
+saturation_vapour_pressure <- function(temp) {
+  0.6108 * exp(17.27 * temp / (temp + 237.3))
 }
 
 ## Whether an RcppR6 environment has a field of this name (fields added by

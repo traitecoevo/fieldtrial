@@ -51,8 +51,10 @@ plant rebuilds integrates to what was measured.
 \item \code{VPD_amp} and \code{VPD_noon} come from a least-squares fit of
 \code{VPD(h) = c0 * (1 + A * cos(2 * pi * (h - vpd_peak_hour) / 24))} to the
 day's record, in local solar time.
-\item Temperatures are the day's mean, maximum and minimum; precipitation its
-total; wind and CO2 their means while the sun is up; pressure its mean.
+\item \code{Tair_noon} comes from the same fit applied to air temperature (with no
+amplitude bound); the day's mean, maximum and minimum are kept too.
+\item Precipitation is the day's total; wind and CO2 their means while the sun
+is up; pressure its mean.
 }
 
 Records are put into days by local solar time, worked out from the

@@ -3,17 +3,18 @@
 
 met_columns <- data.frame(
   column = c("date", "SWdown_noon", "SWdown_mean", "VPD_noon", "VPD_amp",
-             "Tair_mean", "Tair_max", "Tair_min", "Precip", "Wind", "Psurf",
-             "CO2air"),
+             "Tair_noon", "Tair_mean", "Tair_max", "Tair_min", "Precip", "Wind",
+             "Psurf", "CO2air"),
   units = c("date", "W m-2", "W m-2", "kPa", "1", "degC", "degC", "degC",
-            "mm d-1", "m s-1", "kPa", "ppm"),
-  lower = c(NA, 0, 0, 0, 0, -60, -60, -60, 0, 0, 40, 100),
-  upper = c(NA, 1400, 600, 15, 1, 60, 60, 60, 1000, 60, 110, 2000),
+            "degC", "mm d-1", "m s-1", "kPa", "ppm"),
+  lower = c(NA, 0, 0, 0, 0, -60, -60, -60, -60, 0, 0, 40, 100),
+  upper = c(NA, 1400, 600, 15, 1, 60, 60, 60, 60, 1000, 60, 110, 2000),
   meaning = c("calendar day",
               "shortwave at solar noon, scaled so the rebuilt day holds the observed energy",
               "shortwave averaged over 24 hours",
               "vapour pressure deficit at solar noon",
               "relative amplitude of the daily VPD cosine, in [0, 1)",
+              "air temperature at solar noon",
               "mean air temperature", "maximum air temperature",
               "minimum air temperature", "precipitation total",
               "daytime mean wind speed", "surface air pressure",
@@ -29,7 +30,8 @@ met_columns <- data.frame(
 #'
 #' The table holds **noon values**, not daytime means: plant's TF24 reads
 #' `SWdown` and `atm_vpd` as their values at solar noon and rebuilds the day
-#' from them, with a VPD amplitude and the latitude. Only `date` is required;
+#' from them, with a VPD amplitude and the latitude. `Tair_noon` is the air
+#' temperature the same noon, and the one a noon VPD must be read against. Only `date` is required;
 #' a source supplies the columns it can. Site metadata travel as attributes:
 #' `latitude`, `longitude` and `vpd_peak_hour` (local solar time of the VPD
 #' peak), and `filled`, naming the columns that were estimated rather than

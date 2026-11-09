@@ -16,7 +16,7 @@ synthetic_subdaily <- function(lat, lon, utc_offset, days = 40, noon_sw = 950,
   data.frame(time = time,
              SWdown = noon_sw * shape,
              VPD = c0 * (1 + amp * cos(2 * pi * (hour - peak) / 24)),
-             Tair = 25 + 5 * cos(2 * pi * (hour - 15) / 24),
+             Tair = 25 + 5 * cos(2 * pi * (hour - peak) / 24),
              Precip = ifelse(format(solar, "%H") == "06", 0.5, 0),
              Wind = 3, Psurf = 94, CO2air = 410)
 }
@@ -36,6 +36,8 @@ test_that("the fit recovers the noon values a day was built from", {
   expect_equal(met$VPD_noon, rep(2 * (1 + 0.5 * cos(2 * pi * (12 - 14.5) / 24)), nrow(met)),
                tolerance = 1e-3)
   expect_equal(met$Tair_max, rep(30, nrow(met)), tolerance = 1e-3)
+  expect_equal(met$Tair_noon, rep(25 + 5 * cos(2 * pi * (12 - 14.5) / 24), nrow(met)),
+               tolerance = 1e-3)
   expect_equal(met$Precip, rep(1, nrow(met)))
   expect_equal(met$Psurf, rep(94, nrow(met)))
   expect_identical(attr(met, "latitude"), -22.28)

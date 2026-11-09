@@ -13,7 +13,7 @@ met_example <- function(from = "2001-01-01", to = "2003-12-31") {
 test_that("a well-formed table validates", {
   expect_silent(validate_met(met_example()))
   expect_setequal(met_schema()$column, c("date", "SWdown_noon", "SWdown_mean",
-    "VPD_noon", "VPD_amp", "Tair_mean", "Tair_max", "Tair_min", "Precip",
+    "VPD_noon", "VPD_amp", "Tair_noon", "Tair_mean", "Tair_max", "Tair_min", "Precip",
     "Wind", "Psurf", "CO2air"))
 })
 

@@ -1,6 +1,6 @@
 # Scoping `fieldtrial`: parameter sets + environmental drivers for `plant`
 
-Status: scoped 2026-11-09. Phase 0 done (fieldtrial#2, plant-meta#9); phase 1 (trade-offs) in review. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
+Status: scoped 2026-11-09. Phases 0 and 1 done (fieldtrial#2, #3; plant-meta#9). Phase 2a (driver core, no external data) in review; 2b (source adapters) next. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
 
 ## Context
 
@@ -200,6 +200,16 @@ Canonical daily met table (ALMA-style names; a FLUXNET or PLUMBER2 record maps o
 
 Site metadata (`lat`, `lon`, `elev`, `vpd_peak_hour`) travel as attributes and are written to the environment's fields. `apply_drivers(env, met, t0, rainfall = c("pulse", "spline"))` sets `t = (date - t0) / 365.25`, converts units, writes `latitude`, and calls `extrinsic_drivers_set_variable` for continuous drivers. Rainfall defaults to **pulses**: `pulse_series_record()` → `plant::rainfall_pulse()`, with the continuous `rainfall` driver set to 0; a daily record is a sum of discrete depths and interpolating it smears each event over its neighbours. plant lands a soil substep on each knot and `rainfall_pulse()` warns on double counting. The spline path remains for climatologies and the scenario sinusoid. `met_climatology(met)` collapses a record to a mean year for equilibrium runs. `swdown_clear_sky(lat, doy)` from the moved solar code gives a location- and season-dependent light driver where no observed radiation exists (#701).
 
+**As implemented in phase 2a** (plant develop@ae869f13). These constrain later edits:
+
+- **Driver knots sit at the middle of each day**, and the first and last days' values are pinned to the start of the first day and the end of the last. A run starts at time 0 (the start of 1 January), and plant refuses to evaluate a driver outside its knots; mid-day knots alone left the first half-day uncovered.
+- **Time is calendar-fraction years from 1 January of `start_year`** (`met_time()`), so the fractional part is the day of year as plant's 618 geometry reads it, and a leap year's days are 1/366. Spline rainfall converts each day's total at its own year's day count, so a year's total is conserved.
+- **Rainfall defaults to pulses** at the middle of each wet day, with the continuous driver set to zero. `apply_drivers(until =)` drops pulses past the run: plant refuses an event after `max_patch_lifetime`.
+- **`leaf_temp` is not set unless asked for** (`drivers = c(..., "leaf_temp")`), because it moves every temperature response at once. Before anything is set, `VPD_noon` is checked against `(0, e_s(T))` at the leaf temperature it will meet, with phylloptim's Tetens constants, and refused with the first offending date.
+- **`latitude`, `vpd_peak_hour` and `atm_vpd_diurnal_amp` are written only where the environment has them.** plant develop does not yet (the 618 branch adds them), so today a table's `VPD_amp` is recorded as "not in this plant version" and the one-solve path runs on the noon values unchanged.
+- **The subdaily fit groups by local solar day** (UTC offset, longitude, equation of time). A solar day can hold one step more or fewer than 24 clock hours, so "complete" allows ±1 step; the uneven sampling biases the VPD cosine fit by about 3e-4. Amplitudes outside `[0, 0.99]` are clamped and noon VPD below 0.01 kPa raised, both counted in attributes.
+- **`swdown_noon_from_mean()` conserves energy exactly**: the noon value of a clear-sky-shaped day holding the observed daily total, so the day plant rebuilds integrates to what was measured.
+
 **Source adapters.** Every source is one function `met_from_<source>(sites, ...)` returning the canonical table (or a monthly climatology table for climatology-only sources), with attributes recording the source, version, resolution and which columns were gap-filled rather than observed. `met_sources()` lists them. First release:
 
 | Adapter | Coverage | Gives directly | Gap-filled by fieldtrial | Access |
@@ -222,8 +232,10 @@ Later adapters, in this order: SILO (Australia, daily, has radiation and VPD), T
 ## Phased plan
 
 0. ✅ **fieldtrial first commit** (fieldtrial#2, plant-meta#9, 2026-11-09): package skeleton, `PLAN.md` (this document, trimmed), `.plant-interface-version`, README with family boilerplate, board auto-add workflow, CI that installs plant@develop. Clone into plant-family. Open the tracking epic in fieldtrial; link plant #697, #698, #701. **plant-meta PR**: register fieldtrial as above.
-1. 🔄 **fieldtrial PR: trade-offs** (in review) — port `make_FF16_hyperpar`/`make_TF24_hyperpar` as `tradeoffs()` with the simplifications above; coefficient YAMLs; bit-identity tests against plant's current functions over a trait grid; the stem_P50 invariant test.
-2. **fieldtrial PR: generators and adapters** — move `pulse_series.R`, `solar_model.R`, `soil_widths_graded`; add `swdown_clear_sky`, `apply_drivers`, canonical met schema, `met_from_fluxnet`, `met_from_plumber2`, `extract_agcd` (ported from the standalone script) + `met_from_agcd`, `met_from_worldclim`, `met_from_cru`, `met_climatology`. Tests on committed one-year excerpts.
+1. ✅ **fieldtrial PR: trade-offs** (fieldtrial#3) — port `make_FF16_hyperpar`/`make_TF24_hyperpar` as `tradeoffs()` with the simplifications above; coefficient YAMLs; bit-identity tests against plant's current functions over a trait grid; the stem_P50 invariant test.
+2. **fieldtrial PRs: generators and adapters**, split in two.
+   - 🔄 **2a, driver core** (no external data; in review): canonical met table (`met_schema()`, `validate_met()`), corrected solar geometry matching plant's 618 branch (`solar_declination()`, `solar_day()`, `swdown_clear_sky()`, `swdown_noon_from_mean()`), `met_time()`, `met_daily_from_subdaily()` (the half-hourly → noon-value fit every tower adapter reuses), `apply_drivers()`, `met_climatology()`, `met_repeat()`; `pulse_series_*` and `soil_widths_graded()` copied from plant with their tests.
+   - **2b, source adapters**: `met_from_fluxnet`, `met_from_plumber2`, `extract_agcd` + `met_from_agcd`, `met_from_worldclim`, `met_from_cru`, `met_sources()`, a bundled CO₂ history. Needs FLUXNET Shuttle access, a local PLUMBER2 copy, the AGCD archive and a CRU TS download; tests on committed one-year excerpts.
 3. **plant PR A** (as above: `Parameters$hyperpar`, `default_parameters()` with warning, `testing_parameters()` helper, shims, `parameter_table()`, housekeeping). `scientific_version` unchanged (same numbers); goldens unchanged.
 4. **fieldtrial PR: sets** — `parameter_set()`, `check_set()`, `check_passthrough()`, `run_set()`, `mulga_alice_springs`, tall eucalypt; scenario CSVs re-expressed as sets; a vignette running each set end to end through `run_scm` via all four channels.
 5. **regnans**: `plant_default_assembly_pars()` loads `default_parameters("FF16", quiet = TRUE)` or a fieldtrial set; bump `.plant-interface-version`. **logpile**: hash `param_hyperpar(p)` instead of `make_hyperpar(model)`. **overstorey**: `guides/extrinsic-drivers.qmd` fixes the stale PPFD row and gains a "from a met file" section; default-parameter claims read `parameter_table()` so they cannot rot.

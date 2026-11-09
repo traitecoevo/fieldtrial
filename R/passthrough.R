@@ -22,6 +22,9 @@ check_passthrough <- function(model = "TF24") {
     stop("check_passthrough() is for the TF24 family, whose leaf is phylloptim's",
          call. = FALSE)
   }
+  ## phylloptim is not declared as a dependency: plant links it, so it is
+  ## installed wherever plant was built, and declaring it here would send
+  ## dependency resolvers looking for it on CRAN, where it is not.
   pkg <- "phylloptim"
   if (!requireNamespace(pkg, quietly = TRUE)) {
     stop("check_passthrough() needs the phylloptim package plant links", call. = FALSE)

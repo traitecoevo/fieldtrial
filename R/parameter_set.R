@@ -252,7 +252,9 @@ apply_soil <- function(env, soil) {
     }
     widths <- soil_widths_graded(v$depth, v$n_layers, v$top %||% 0.02)
   }
-  ## plant takes one value per layer; a set gives one for the column.
+  ## plant takes the soil parameters one value per layer, and a set gives one
+  ## for the column. Initial moisture (theta) plant itself spreads over the
+  ## layers when given one value.
   n <- if (is.null(widths)) env$get_soil_number_of_depths() else length(widths)
   per_layer <- function(x) if (is.null(x)) NULL else rep(x, n)
   plant::set_tf24_soil(env, widths = widths, theta = v$theta,

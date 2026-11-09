@@ -1,6 +1,6 @@
 schema: 1
 name: mulga_alice_springs
-description: "Mulga (Acacia aptaneura, formerly A. aneura var. tenuis) at the Alice Springs Mulga flux site, AU-ASM, Ti Tree, NT. Site-measured traits first; AusTraits means for Acacia aneura sensu lato where the site has none. Stem and root P50 are a flagged proxy."
+description: "Mulga (Acacia aptaneura, formerly A. aneura var. tenuis) at the Alice Springs Mulga flux site, AU-ASM, Ti Tree, NT. Values measured at the site or elsewhere in the Ti Tree basin first; AusTraits means for Acacia aneura sensu lato where those have none. Stem and root P50 are a flagged proxy."
 model: TF24
 plant_scientific_version: "TF24@v15"
 site: {name: "Alice Springs Mulga (AU-ASM)", latitude: -22.283, longitude: 133.249, elevation: 606}

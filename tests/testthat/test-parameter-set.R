@@ -111,5 +111,20 @@ test_that("a set's soil parameters reach plant once per layer", {
   parameter_set(test_set(), drivers = FALSE)
   expect_identical(seen$soil_moist_sat, rep(0.4, 4))
   expect_length(seen$widths, 4L)
+  expect_identical(seen$theta, 0.3)
   expect_null(seen$K_sat)
+
+  ## Every soil parameter, given once for the column, reaches plant per layer.
+  seen <- NULL
+  env <- plant::Environment("TF24")
+  apply_soil(env, list(
+    depth = list(value = 1.2, source = "x"), n_layers = list(value = 3, source = "x"),
+    K_sat = list(value = 50, source = "x"), a_psi = list(value = 2e-3, source = "x"),
+    n_psi = list(value = 5, source = "x"), soil_moist_sat = list(value = 0.38, source = "x"),
+    theta = list(value = 0.2, source = "x")))
+  expect_identical(seen$K_sat, rep(50, 3))
+  expect_identical(seen$a_psi, rep(2e-3, 3))
+  expect_identical(seen$n_psi, rep(5, 3))
+  expect_identical(seen$soil_moist_sat, rep(0.38, 3))
+  expect_identical(seen$theta, 0.2)
 })

@@ -15,7 +15,10 @@ met_repeat(met, n_years)
 \item{n_years}{How many years the result spans.}
 }
 \value{
-A daily met table, with the attributes of \code{met}.
+A daily met table carrying \code{met}'s site attributes (\code{latitude},
+\code{longitude}, \code{vpd_peak_hour}, \code{filled}, \code{source}, \code{climatology_of}).
+\code{met_climatology()} sets \code{climatology_of} to the first and last years
+averaged.
 }
 \description{
 \code{met_climatology()} collapses a record to its mean year: each column

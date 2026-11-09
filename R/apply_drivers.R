@@ -136,14 +136,13 @@ apply_drivers <- function(env, met, start_year = NULL,
     record(driver, column)
   }
 
-  if (!is.null(attr(met, "latitude"))) {
-    if (has_field(env, "latitude")) {
-      env$latitude <- attr(met, "latitude")
-      record("latitude (field)", "attr(met, \"latitude\")")
-    }
-    if (has_field(env, "vpd_peak_hour") && !is.null(attr(met, "vpd_peak_hour"))) {
-      env$vpd_peak_hour <- attr(met, "vpd_peak_hour")
-      record("vpd_peak_hour (field)", "attr(met, \"vpd_peak_hour\")")
+  ## Site fields of the environment, each independently: plant versions
+  ## before the diurnal integral have neither.
+  for (field in c("latitude", "vpd_peak_hour")) {
+    value <- attr(met, field)
+    if (!is.null(value) && has_field(env, field)) {
+      env[[field]] <- value
+      record(paste0(field, " (field)"), sprintf("attr(met, \"%s\")", field))
     }
   }
 

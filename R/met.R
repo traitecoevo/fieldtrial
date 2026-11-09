@@ -96,7 +96,10 @@ validate_met <- function(met) {
 #'
 #' @param met A daily met table.
 #' @param n_years How many years the result spans.
-#' @return A daily met table, with the attributes of `met`.
+#' @return A daily met table carrying `met`'s site attributes (`latitude`,
+#'   `longitude`, `vpd_peak_hour`, `filled`, `source`, `climatology_of`).
+#'   `met_climatology()` sets `climatology_of` to the first and last years
+#'   averaged.
 #' @export
 #' @examples
 #' met <- data.frame(date = seq(as.Date("2001-01-01"), as.Date("2003-12-31"), by = "day"))
@@ -162,7 +165,8 @@ met_repeat <- function(met, n_years) {
 }
 
 copy_met_attributes <- function(to, from, ...) {
-  for (a in c("latitude", "longitude", "vpd_peak_hour", "filled", "source")) {
+  for (a in c("latitude", "longitude", "vpd_peak_hour", "filled", "source",
+              "climatology_of")) {
     attr(to, a) <- attr(from, a)
   }
   extra <- list(...)

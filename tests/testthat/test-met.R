@@ -51,6 +51,7 @@ test_that("repeated years cover the run, leap days included", {
   expect_equal(r$date[nrow(r)], as.Date("2004-12-31"))
   expect_silent(validate_met(r))
   ## 2004 is a leap year; its 29 February takes the 28th's values.
+  expect_identical(attr(r, "climatology_of"), attr(clim, "climatology_of"))
   feb29 <- which(r$date == as.Date("2004-02-29"))
   expect_identical(r$SWdown_noon[feb29], r$SWdown_noon[feb29 - 1])
   expect_error(met_repeat(met_example("2001-03-01", "2002-12-31"), 3), "whole years")

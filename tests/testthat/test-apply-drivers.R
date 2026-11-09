@@ -79,6 +79,25 @@ test_that("absent columns leave plant's values and say so", {
   expect_error(apply_drivers(env, met, drivers = "SWdownx"), "Unknown driver")
 })
 
+test_that("`until` keeps a pulse at that time and drops the next", {
+  met <- met_two_years()
+  t <- met_time(met$date, 2010)
+  wet <- which(met$Precip > 0)
+  cut <- t[wet[3]]
+  res <- apply_drivers(plant::Environment("TF24"), met, until = cut)
+  expect_identical(length(res$events$time), 3L)
+  expect_identical(max(res$events$time), cut)
+})
+
+test_that("a table without site attributes, or without rainfall, still applies", {
+  met <- met_two_years()
+  attr(met, "latitude") <- NULL
+  res <- apply_drivers(plant::Environment("TF24"), met, drivers = c("SWdown", "atm_vpd"))
+  expect_null(res$events)
+  expect_false(any(grepl("rainfall|latitude", res$drivers$driver)))
+  expect_identical(res$drivers$driver, c("SWdown", "atm_vpd"))
+})
+
 test_that("a short TF24 stand runs on the drivers and pulses", {
   skip_on_cran()
   p <- plant::scm_base_parameters("TF24")

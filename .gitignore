@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.DS_Store
+*.Rproj
+inst/doc
+/doc/
+/Meta/
+fieldtrial.Rcheck/
+.claude/settings.local.json
+tests/testthat/_problems/

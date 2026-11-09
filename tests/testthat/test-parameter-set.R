@@ -94,3 +94,17 @@ test_that("sets are found by name or path", {
   expect_type(list_sets(), "character")
   expect_error(parameter_set("no_such_set"), "No set \"no_such_set\"")
 })
+
+test_that("a set's soil parameters reach plant once per layer", {
+  ## plant keeps per-layer soil parameters with no getter, so the call is
+  ## checked on its way in, then made.
+  real <- plant::set_tf24_soil
+  seen <- NULL
+  local_mocked_bindings(
+    set_tf24_soil = function(env, ...) { seen <<- list(...); real(env, ...) },
+    .package = "plant")
+  parameter_set(test_set(), drivers = FALSE)
+  expect_identical(seen$soil_moist_sat, rep(0.4, 4))
+  expect_length(seen$widths, 4L)
+  expect_null(seen$K_sat)
+})

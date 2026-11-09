@@ -7,7 +7,12 @@
 \alias{list_sets}
 \title{Parameter sets for species and sites}
 \usage{
-parameter_set(set, check = TRUE, driver_path = fieldtrial_cache("worldclim"))
+parameter_set(
+  set,
+  check = TRUE,
+  drivers = TRUE,
+  driver_path = fieldtrial_cache("worldclim")
+)
 
 check_set(set, allow_version_drift = FALSE)
 
@@ -20,6 +25,10 @@ list_sets()
 \code{fieldtrial_set}.}
 
 \item{check}{Whether to run \code{check_set()} on the result.}
+
+\item{drivers}{Whether to build the set's drivers. \code{FALSE} builds
+everything else, leaving the environment's drivers at plant's values and
+\code{events} empty, so a set can be checked without its climate data.}
 
 \item{driver_path}{Where downloaded climate data are kept, for sets whose
 drivers come from a gridded source.}

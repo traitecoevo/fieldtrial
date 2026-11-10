@@ -24,3 +24,16 @@ test_that("the Alice Springs mulga set carries its traits and its hydraulic prox
   expect_null(set$events)
   expect_match(set$meta$tradeoff_coefficients$B_Hv1$source, "^PROXY")
 })
+
+test_that("mulga_delta shares mulga_alice_springs's species and differs in site", {
+  delta <- parameter_set("mulga_delta", drivers = FALSE)
+  alice <- parameter_set("mulga_alice_springs", drivers = FALSE)
+  expect_identical(delta$p$strategies[[1]]$pars, alice$p$strategies[[1]]$pars)
+  ## The monitoring site's location is published to 0.1 degree only.
+  for (x in c(delta$meta$site$latitude, delta$meta$site$longitude)) {
+    expect_equal(x, round(x, 1))
+  }
+  ## No Alice Springs soil carried over: plant's default column.
+  expect_equal(sum(delta$env$get_soil_layer_widths()),
+               sum(plant::Environment("TF24")$get_soil_layer_widths()))
+})

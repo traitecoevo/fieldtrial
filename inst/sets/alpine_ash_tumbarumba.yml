@@ -1,6 +1,6 @@
 schema: 1
 name: alpine_ash_tumbarumba
-description: "Alpine ash (Eucalyptus delegatensis) at the Tumbarumba flux site, AU-Tum, Bago State Forest, NSW. Values measured at the site first; AusTraits means for E. delegatensis where the site has none. Stem and root P50 are a congener proxy (E. regnans); hmat is derived from the set's own growth to 20 years."
+description: "Alpine ash (Eucalyptus delegatensis) at the Tumbarumba flux site, AU-Tum, Bago State Forest, NSW. Values measured at the site first; AusTraits means for E. delegatensis where the site has none. Stem and root P50 are a derived proxy (E. regnans stem, scaled by the two species' leaf P50s); hmat is derived from the set's own growth to 20 years."
 model: TF24
 plant_scientific_version: "TF24@v15"
 site: {name: "Tumbarumba (AU-Tum)", latitude: -35.6557, longitude: 148.1521, elevation: 1200}
@@ -11,14 +11,14 @@ traits:
   vcmax_25: {value: 81.5, source: "Medlyn-2007 (doi:10.1093/treephys/27.12.1687), Table 3: E. delegatensis Vcmax25 81.5 +/- 13.8 umol m-2 s-1, AU-Tum, 15 leaves from 10 trees, May 2002"}
   jmax_25: {value: 194.6, source: "Medlyn-2007 (doi:10.1093/treephys/27.12.1687), Table 3: E. delegatensis Jmax25 194.6 +/- 23.3 umol m-2 s-1, AU-Tum"}
 tradeoff_coefficients:
-  B_Hv1: {value: 0.60243869617895851, source: "CONGENER PROXY. Set so stem_P50 = 4.98 MPa at plant's default K_s. No stem P50 for E. delegatensis (any subspecies) could be read; 4.98 MPa is the stem P50 of the congener E. regnans (Pan-NoDate, published 2026, doi:10.1111/nph.71345, Table 1; optical method on 6-10-month-old seedlings, n = 6)"}
+  B_Hv1: {value: 0.62995941028944247, source: "DERIVED PROXY. Set so stem_P50 = 5.30579 MPa at plant's default K_s. No stem P50 for E. delegatensis could be read. 5.30579 = 4.98 x 3.42 / 3.21: the stem P50 of the congener E. regnans (Pan-NoDate, published 2026, doi:10.1111/nph.71345, Table 1; optical method, 6-10-month seedlings, n = 6), scaled by the ratio of the two species' leaf P50s measured together (Britton-2022, doi:10.1111/nph.17888, Results: E. delegatensis 3.42 +/- 0.16 and E. regnans 3.21 +/- 0.16 MPa, optical method, 6-year-old trees, Tasmania)"}
 pars:
   theta: {value: 2.594186e-04, source: "Falster-2021 (AusTraits): austraits-means 7.0.0.9000 geometric observed mean Huber value for Eucalyptus delegatensis, 2.594186e-4 mm2 sapwood per mm2 leaf, 2 records (Togashi_2015). Mokany-2003 (doi:10.1093/treephys/23.14.949) finds it falls with tree height at Bago SF"}
-  hmat: {value: 23.55, source: "DERIVED: the tallest cohort's height at 20 years in a run of this set with no maturation (hmat 100 m, plant develop@218501e1, WorldClim drivers), so the stand matures at about the 20-year primary juvenile period Doherty-2017 (doi:10.1071/bt17068) gives for alpine ash; a few per cent flower earlier, at ~5-6 m. Re-derive if the set's other values change"}
-  root_P50: {value: 4.98, source: "CONGENER PROXY, as for B_Hv1: E. regnans stem P50 (Pan-NoDate, doi:10.1111/nph.71345). No root vulnerability curve for E. delegatensis was found"}
+  hmat: {value: 23.51, source: "DERIVED: the tallest cohort's height at 20 years in a run of this set with no maturation (hmat 100 m, plant develop@218501e1, WorldClim drivers), so the stand matures at about the 20-year primary juvenile period Doherty-2017 (doi:10.1071/bt17068) gives for alpine ash; a few per cent flower earlier, at ~5-6 m. Re-derived after the P50 change (23.55 m at P50 4.98). Re-derive if the set's other values change"}
+  root_P50: {value: 5.30579, source: "DERIVED PROXY, as for B_Hv1: E. regnans stem P50 (Pan-NoDate) scaled by the E. delegatensis / E. regnans leaf P50 ratio (Britton-2022). No root vulnerability curve for E. delegatensis was found"}
 environment:
   soil:
-    depth: {value: 2.0, source: "Pepper-2008 (doi:10.1071/fp08125; not in Zotero), Site description: the soil at AU-Tum is ~2 m deep, a red dermosol over a weathered C horizon. The same paper notes roots may reach water stored deeper than 3 m (citing Leuning et al. 2005)"}
+    depth: {value: 2.0, source: "Pepper-2008 (doi:10.1071/fp08125), Site description: the soil at AU-Tum is ~2 m deep, a red dermosol over a weathered C horizon. The same paper notes roots may reach water stored deeper than 3 m (citing Leuning et al. 2005)"}
     n_layers: {value: 5, source: "fieldtrial: numerical resolution of the column"}
     top: {value: 0.02, source: "fieldtrial: plant's default surface-layer width"}
 drivers:
@@ -32,9 +32,9 @@ provenance:
   notes: >-
     Decided with the maintainer 2026-11-10: E. delegatensis at AU-Tum; values measured at
     the site first (Medlyn-2007: Vcmax, Jmax, LMA), AusTraits means to fill (wood density,
-    seed mass, Huber value); stem and root P50 from the congener E. regnans (4.98 MPa) as a
-    flagged proxy, since no E. delegatensis P50 could be read (Britton et al. 2022 measured a
-    leaf P50 for Tasmanian E. delegatensis; paywalled); hmat derived as the height reached at
+    seed mass, Huber value); stem and root P50 = 5.31 MPa, E. regnans' stem P50 (4.98) scaled by the
+    two species' leaf P50s measured together (Britton-2022), a derived proxy since no E.
+    delegatensis stem P50 could be read; hmat derived as the height reached at
     20 years. Not set, for lack of data: K_s, the curves' shapes, soil hydraulic parameters
     (plant's K_sat has no documented units). Site coordinates and elevation from Medlyn-2007.
     Canopy at AU-Tum is about 40 m (Pepper-2008).

@@ -43,3 +43,17 @@ test_that("mulga_delta shares mulga_alice_springs's species and differs in site"
   expect_identical(delta$env$get_soil_water_state(), default$get_soil_water_state())
   expect_null(delta$meta$environment)
 })
+
+test_that("the alpine ash set carries its site values and proxies", {
+  set <- parameter_set("alpine_ash_tumbarumba", drivers = FALSE)
+  pars <- set$p$strategies[[1]]$pars
+  expect_equal(pars$lma, 1 / 4.85, tolerance = 1e-5)
+  expect_equal(pars$vcmax_25, 81.5)
+  expect_equal(pars$jmax_25, 194.6)
+  expect_equal(pars$stem_P50, 4.98, tolerance = 1e-12)
+  expect_equal(pars$root_P50, 4.98)
+  expect_equal(pars$hmat, 23.55)
+  expect_equal(sum(set$env$get_soil_layer_widths()), 2.0)
+  expect_match(set$meta$tradeoff_coefficients$B_Hv1$source, "^CONGENER PROXY")
+  expect_match(set$meta$pars$hmat$source, "^DERIVED")
+})

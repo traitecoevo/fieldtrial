@@ -1,0 +1,35 @@
+schema: 1
+name: mulga_delta
+description: "Mulga at the Delta monitoring site, north-western NSW. Species values are those of mulga_alice_springs (A. aptaneura at Alice Springs Mulga, A. aneura sensu lato means from AusTraits): the taxon at Delta is not recorded in the set's sources. Site, climate and soil differ."
+model: TF24
+plant_scientific_version: "TF24@v15"
+site: {name: "Delta (mulga monitoring plots)", latitude: -30.1, longitude: 145.3}
+traits:
+  lma: {value: 0.4579142, source: "Falster-2021 (AusTraits): austraits-means 7.0.0.9000 geometric observed mean for Acacia aneura, 457.9142 g m-2, 48 records from 27 locations, 12 datasets"}
+  rho: {value: 950, source: "Santini-2016 (doi:10.1007/s00468-015-1301-5), Table 1: A. aneura branch wood density 0.95 +/- 0.07 g cm-3, Ti Tree Basin, n = 6"}
+  omega: {value: 1.345313e-05, source: "Falster-2021 (AusTraits): austraits-means 7.0.0.9000 geometric observed mean for Acacia aneura seed dry mass, 13.45313 mg, 108 records from 5 locations"}
+  vcmax_25: {value: 174.0, source: "Nolan-2017 (doi:10.1071/fp17096; mulga-library, not in Zotero), Table 1: A. aptaneura Vcmax 174.0 +/- 36.8 umol m-2 s-1 at 25 C, AU-ASM wet season 2016, n = 4 trees"}
+  jmax_25: {value: 233.4, source: "Nolan-2017 (doi:10.1071/fp17096), Table 1: A. aptaneura Jmax 233.4 +/- 28.9 umol m-2 s-1 at 25 C, AU-ASM, n = 4 trees"}
+tradeoff_coefficients:
+  B_Hv1: {value: 0.73128415612006736, source: "PROXY. Set so stem_P50 = 6.7 MPa at plant's default K_s: no stem P50 for any mulga taxon was found. 6.7 MPa is the leaf water potential at stomatal closure in A. aptaneura at AU-ASM (Nolan-2018a, doi:10.1016/j.jaridenv.2018.01.003; mulga-library), a lower bound on P50. Midday leaf water potential there reaches -6.5 to -6.9 MPa (Nolan-2017b, doi:10.1071/fp17079; Nolan-2018a)."}
+pars:
+  theta: {value: 1.57e-03, source: "Nolan-2018a (doi:10.1016/j.jaridenv.2018.01.003), Table 2: A. aptaneura Huber value 15.7 +/- 1.6 x 1e-4, branches of 4 trees, AU-ASM"}
+  hmat: {value: 2.5, source: "Preece-1971a (doi:10.1071/bt9710021), Methods: the flowering mulga studied were mostly between 2 and 3 m tall (chosen as a size convenient for counting flowers); a proxy for height at maturation, which has no direct measurement. AusTraits' mean plant height (4.7 m) was tried first: the stand reached it only in the 105th year, so it barely reproduced"}
+  root_P50: {value: 6.7, source: "PROXY, as for B_Hv1: stomatal closure at -6.7 MPa in A. aptaneura (Nolan-2018a). No root vulnerability curve for any mulga taxon was found"}
+drivers:
+  source: worldclim
+  res: 10
+  rainfall: spline
+  leaf_temp: true
+provenance:
+  author: "Daniel Falster, with Claude"
+  date: "2026-11-10"
+  notes: >-
+    Site location is the centre of the Delta plots (mulga project field sites, QGIS
+    layer mulga_plots) rounded to 0.1 degree, so a monitoring plot's exact position is
+    not published; that is finer than WorldClim's 10 arc-minute cells. Species values,
+    their sources and the P50 and hmat proxies are those of mulga_alice_springs; see
+    its provenance. Soil is left at plant's defaults: the hardpan depth and porosity
+    in mulga_alice_springs were measured at Alice Springs, and no soil data for Delta
+    are cited here. leaf_temp is set from the site's noon air temperature, as at
+    Alice Springs.

@@ -95,7 +95,7 @@ parameter_set <- function(set, check = TRUE, drivers = TRUE,
   fields <- values_of(meta$strategy, "strategy")
   for (key in names(fields)) {
     if (key %in% strategy_plumbing || !key %in% names(s) || !is.numeric(s[[key]])) {
-      refuse_key("strategy", key, sprintf("a numeric field of %s_Strategy", model))
+      refuse_key("strategy", key, sprintf("a numeric field of %s_Model", model))
     }
     p$strategy_default[[key]] <- fields[[key]]
   }

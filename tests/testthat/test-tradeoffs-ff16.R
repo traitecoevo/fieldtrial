@@ -1,6 +1,6 @@
 test_that("FF16 trade-offs match plant's to the bit", {
   ref <- plant_frozen("FF16")
-  s <- plant::FF16_Strategy()
+  s <- plant::FF16_Model()
   m <- ff16_grid()
   for (filter in c(FALSE, TRUE)) {
     got <- tradeoffs("FF16")(m, s, filter = filter)
@@ -11,7 +11,7 @@ test_that("FF16 trade-offs match plant's to the bit", {
 
 test_that("FF16 matches plant on a one-trait and an empty matrix", {
   ref <- plant_frozen("FF16")
-  s <- plant::FF16_Strategy()
+  s <- plant::FF16_Model()
   one <- plant::trait_matrix(0.1, "lma")
   empty <- matrix(numeric(0), 0, 1, dimnames = list(NULL, "narea"))
   for (filter in c(FALSE, TRUE)) {
@@ -24,7 +24,7 @@ test_that("FF16 matches plant on a one-trait and an empty matrix", {
 
 test_that("FF16 at another latitude matches plant", {
   ref <- plant_frozen("FF16")
-  s <- plant::FF16_Strategy()
+  s <- plant::FF16_Model()
   m <- ff16_grid()
   expect_identical(tradeoffs("FF16", list(latitude = 30))(m, s, FALSE),
                    ref(latitude = 30)(m, s, FALSE))
@@ -37,7 +37,7 @@ test_that("FF16 declares narea as a trait it reads but does not assign", {
 })
 
 test_that("a flat assimilation curve is returned without a fit", {
-  s <- plant::FF16_Strategy()
+  s <- plant::FF16_Model()
   ## No light reaches the leaf, so every openness gives the same assimilation.
   s$pars$k_I <- 0
   got <- tradeoffs("FF16")(plant::trait_matrix(1.87e-3, "narea"), s,

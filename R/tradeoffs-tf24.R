@@ -1,6 +1,6 @@
 ## TF24's trade-offs: the shared economic chain, the hydraulic cost scale on
 ## wood density, the stem vulnerability curve from sapwood conductivity, and
-## leaf nitrogen and respiration from leaf mass per area, vcmax_25 and jmax_25.
+## leaf respiration from leaf mass per area, vcmax_25 and jmax_25.
 tf24_tradeoffs <- function(co) {
   force(co)
   function(m, s, filter = TRUE) {
@@ -28,18 +28,18 @@ tf24_tradeoffs <- function(co) {
 
     ## Leaf nitrogen per area: structural from lma (in g m-2), photosynthetic
     ## from vcmax_25 and jmax_25; respiration per unit leaf mass from each.
+    ## Leaf nitrogen itself is not returned: no TF24 equation reads it.
     narea_ls <- (co$a_lf1 + co$B_lf1 * lma * 1000) / 1000
     narea_lp <- (co$B_lf2 * vcmax_25 + co$B_lf3 * jmax_25) / 1000
     nmass_ls <- narea_ls / lma
     nmass_lp <- narea_lp / lma
-    nmass_l <- nmass_ls + nmass_lp
     r_l <- co$B_lf4 * nmass_ls + co$B_lf5 * nmass_lp
 
     extra <- cbind(k_l = econ$k_l,
                    d_I = econ$d_I, TF24_cost_scale = TF24_cost_scale,
                    k_s = econ$k_s, r_s = econ$r_s, r_b = econ$r_b,
                    a_f3 = econ$a_f3,
-                   r_l = r_l, nmass_l = nmass_l,
+                   r_l = r_l,
                    stem_c = stem_c, stem_P50 = stem_P50, stem_b = stem_b,
                    psi_crit = psi_crit)
     append_derived(m, extra, s, filter)

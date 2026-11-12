@@ -1,6 +1,6 @@
 test_that("TF24 trade-offs match plant's to the bit", {
   ref <- plant_frozen("TF24")
-  s <- plant::TF24_Strategy()
+  s <- plant::TF24_Model()
   m <- tf24_grid()
   for (filter in c(FALSE, TRUE)) {
     expect_identical(tradeoffs("TF24")(m, s, filter = filter),
@@ -20,7 +20,7 @@ test_that("TF24 trade-offs match plant's to the bit", {
 
 test_that("overridden coefficients match plant's arguments", {
   ref <- plant_frozen("TF24")
-  s <- plant::TF24_Strategy()
+  s <- plant::TF24_Model()
   m <- tf24_grid()
   expect_identical(
     tradeoffs("TF24", list(B_Hv2 = -0.3, B_hks2 = 1, B_c2 = 0.1))(m, s, FALSE),
@@ -31,7 +31,7 @@ test_that("each TF24 variant matches plant's trade-offs for it", {
   m <- tf24_grid()
   for (model in c("TF24f", "TF24t", "TF24w")) {
     ref <- plant_frozen(model)()
-    s <- get(paste0(model, "_Strategy"), envir = asNamespace("plant"))()
+    s <- get(paste0(model, "_Model"), envir = asNamespace("plant"))()
     expect_identical(tradeoffs(model)(m, s, filter = TRUE),
                      ref(m, s, filter = TRUE), label = model)
   }
@@ -44,7 +44,7 @@ test_that("the default stem curve is the curve at the default K_s", {
   ## plant's defaults are C++ literals; the trade-off is computed with this
   ## platform's pow(), which can differ from the platform the literal came from
   ## in the last bit (glibc does for stem_P50).
-  s <- plant::TF24_Strategy()
+  s <- plant::TF24_Model()
   d <- tradeoffs("TF24")(plant::trait_matrix(s$pars$K_s, "K_s"), s,
                          filter = FALSE)
   for (name in c("stem_P50", "stem_c", "stem_b", "psi_crit")) {
@@ -54,7 +54,7 @@ test_that("the default stem curve is the curve at the default K_s", {
 })
 
 test_that("TF24 refuses what plant refuses", {
-  s <- plant::TF24_Strategy()
+  s <- plant::TF24_Model()
   f <- tradeoffs("TF24")
   expect_error(f(plant::trait_matrix(0, "K_s"), s), "K_s must be > 0")
   expect_error(f(cbind(lma = 0.1, k_l = 1), s), "overwrite generated parameters")

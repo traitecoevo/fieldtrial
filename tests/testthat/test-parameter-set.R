@@ -92,7 +92,7 @@ test_that("TF24t's thermal fields are set through the strategy block", {
   set <- parameter_set(path)
   expect_identical(set$p$strategies[[1]]$k_mat, 0.005)
   bad <- test_set(function(x) c(x, "strategy:", "  control: {value: 1, source: \"x\"}"))
-  expect_error(parameter_set(bad), "not a numeric field of TF24_Strategy")
+  expect_error(parameter_set(bad), "not a numeric field of TF24_Model")
 })
 
 test_that("sets are found by name or path", {

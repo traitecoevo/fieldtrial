@@ -34,7 +34,7 @@ check_passthrough <- function(model = "TF24") {
   }
   leaf_traits <- getExportedValue(pkg, "leaf_traits")
   leaf_control <- getExportedValue(pkg, "leaf_control")
-  s <- get(paste0(model, "_Strategy"), envir = asNamespace("plant"))()
+  s <- get(paste0(model, "_Model"), envir = asNamespace("plant"))()
   ctrl <- plant::control()
   out_of_scope <- c("JS22_gamma", "CMax_a", "CMax_b", "integration_tol")
   ## The leaf's quadrature rule is plant's function_integration_rule.

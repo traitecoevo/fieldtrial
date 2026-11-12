@@ -16,10 +16,10 @@ The [Overstorey](https://traitecoevo.github.io/overstorey/) guides show `plant` 
 
 ```r
 # install.packages("pak")
-pak::pak("traitecoevo/fieldtrial")
+pak::pak(c("traitecoevo/fieldtrial", "geodata", "terra"))
 ```
 
-This also installs `plant` at the commit fieldtrial is pinned to (the `Remotes:` field of `DESCRIPTION`, recorded with the plant changes it has absorbed in [`.plant-interface-version`](.plant-interface-version)). `plant` compiles from source, so a C++ toolchain is needed.
+This also installs `plant` at the commit fieldtrial is pinned to (the `Remotes:` field of `DESCRIPTION`, recorded with the plant changes it has absorbed in [`.plant-interface-version`](.plant-interface-version)). `plant` compiles from source, so a C++ toolchain is needed. `geodata` and `terra` are optional dependencies, but every shipped parameter set reads WorldClim through them, so install them too unless you only want the trade-offs.
 
 ## Using fieldtrial
 
@@ -34,16 +34,16 @@ p$strategies[[1]]$pars[c("lma", "k_l", "r_l")]
 tradeoff_table("TF24")   # every coefficient, with units and source
 ```
 
-List the named parameter sets, load one, and run it (the first load downloads WorldClim's 10 arc-minute grids, about 200 MB, and caches them):
+List the named parameter sets, load one, and run it. The first load downloads WorldClim's 10 arc-minute grids, about 200 MB, into `tools::R_user_dir("fieldtrial", "cache")`; `parameter_set(driver_path = )` puts them elsewhere.
 
 ```r
 list_sets()
 set <- parameter_set("mulga_alice_springs")
-set                  # p, env, ctrl and events: the four inputs of plant::run_scm()
+names(set)           # p, env, ctrl and events: the four inputs of plant::run_scm()
 res <- run_set(set)  # a 105-year patch: about ten minutes
 ```
 
-Build driver series for a site yourself: a mean year from WorldClim, repeated and written into a TF24 environment, or a drawn series of rainfall pulses:
+Build driver series for a site yourself: a mean year from WorldClim, repeated and written into a TF24 environment, or a drawn series of rainfall pulses. `leaf_temp` is left at plant's default unless asked for; it is asked for here because Alice Springs' noon VPD is beyond what the leaf allows at 25 °C, as the mulga set does too. `met_from_monthly()` builds the same daily table from any monthly climatology, and `met_daily_from_subdaily()` from a flux tower's half-hourly record.
 
 ```r
 met <- met_from_worldclim(-22.283, 133.249)   # Alice Springs Mulga: a daily mean year

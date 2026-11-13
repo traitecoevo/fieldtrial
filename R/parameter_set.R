@@ -164,7 +164,7 @@ run_set <- function(set, ...) {
   set <- parameter_set(set)
   events <- if (is.null(set$events)) NULL else
     plant::events(plant::events_default(set$p), set$events)
-  plant::run(set$p, set$env, set$ctrl, events = events, ...)
+  plant::run(set$p, env = set$env, control = set$ctrl, events = events, ...)
 }
 
 #' @rdname parameter_set

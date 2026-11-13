@@ -45,6 +45,13 @@ test_that("a set built against another plant model version is refused", {
                   "fieldtrial_set")
 })
 
+test_that("a set's run block sets how fitness is weighted", {
+  path <- test_set(function(x) sub("run: {max_patch_lifetime: 1",
+                                   "run: {fitness_weighting: none, max_patch_lifetime: 1",
+                                   x, fixed = TRUE))
+  expect_identical(parameter_set(path)$p$fitness_weighting, "none")
+})
+
 test_that("keys that reach nothing are refused, not dropped", {
   refuse <- function(from, to, msg) {
     path <- test_set(function(x) sub(from, to, x, fixed = TRUE))
@@ -58,6 +65,8 @@ test_that("keys that reach nothing are refused, not dropped", {
   refuse("  hmat: {value: 8, source: \"test fixture\"}", "  hmat: {value: 8}", "hmat has no source")
   ## Unknown keys elsewhere.
   refuse("run: {max_patch_lifetime: 1", "run: {max_patch_life: 1", "max_patch_life is not one of")
+  refuse("run: {max_patch_lifetime: 1", "run: {patch_type: fixed, max_patch_lifetime: 1",
+         "patch_type is not one of")
   refuse("control: {GSS_tol_abs", "control: {GSS_tolerance", "GSS_tolerance is not a field of plant's Control")
   refuse("    f_PAR: {value", "    fPAR: {value", "fPAR is not a field of TF24's environment")
   refuse("    theta: {value", "    thetas: {value", "thetas is not depth, n_layers")

@@ -12,5 +12,6 @@ applied_breaking_changes:
 # Checked and not affected (no call sites): NodeSchedule -> Schedule (#752);
 # opt_psi_stem -> opt_psi_leaf and tidy_individual() (#746); TF24f's
 # use_ad_gradient/psi_fd_step (#745); TF24* stand reports and
-# plant_log_console() (#535); scenario gateway functions unexported and
-# optimise_individual_rate_at_height_by_trait() removed.
+# plant_log_console() (#535); the scenario gateway (deleted, #775) and
+# optimise_individual_rate_at_height_by_trait() removed; run_stochastic_collect()
+# and grow_individual_to_*() (#779); the SCM's fitness fields, moved to the patch (#781).

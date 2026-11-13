@@ -27,7 +27,7 @@ Attach the recommended trade-offs to a `plant` `Parameters` object, so each stra
 
 ```r
 library(fieldtrial)
-p <- plant::scm_base_parameters("TF24")
+p <- plant::base_parameters("TF24")
 p$hyperpar <- tradeoffs("TF24")
 p <- plant::add_strategies(p, plant::trait_matrix(0.1, "lma"))
 p$strategies[[1]]$pars[c("lma", "k_l", "r_l")]
@@ -39,7 +39,7 @@ List the named parameter sets, load one, and run it. The first load downloads Wo
 ```r
 list_sets()
 set <- parameter_set("mulga_alice_springs")
-names(set)           # p, env, ctrl and events: the four inputs of plant::run_scm()
+names(set)           # p, env, ctrl and events: the four inputs of plant::run()
 res <- run_set(set)  # a 105-year patch: about ten minutes
 ```
 

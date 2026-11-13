@@ -36,13 +36,13 @@ drivers come from a gridded source.}
 \item{allow_version_drift}{Accept a set built against another plant model
 version.}
 
-\item{...}{Passed to \code{plant::run_scm()}.}
+\item{...}{Passed to \code{plant::run()}.}
 }
 \value{
 \code{parameter_set()}: a list of class \code{fieldtrial_set} with \code{p}, \code{env},
 \code{ctrl}, \code{events}, \code{tradeoffs} (the trade-off function used), \code{met} (the
-daily met table) and \code{meta} (the parsed file). \code{run_set()}: the result of
-\code{plant::run_scm()}. \code{check_set()}: \code{set}, invisibly. \code{list_sets()}: the
+daily met table) and \code{meta} (the parsed file). \code{run_set()}: the \code{plant_run} that
+\code{plant::run()} returns. \code{check_set()}: \code{set}, invisibly. \code{list_sets()}: the
 names of the sets in the package.
 }
 \description{
@@ -54,7 +54,7 @@ YAML files in the package (\code{list_sets()}) or anywhere on disk.
 }
 \details{
 \code{parameter_set()} reads a set and builds the four inputs of
-\code{plant::run_scm()}: \code{p} (a \code{plant::Parameters} with one strategy), \code{env}
+\code{plant::run()}: \code{p} (a \code{plant::Parameters} with one strategy), \code{env}
 (a \code{plant::Environment} with its soil and drivers), \code{ctrl} (a
 \code{plant::Control}) and \code{events} (rainfall pulses, or \code{NULL}). \code{run_set()}
 runs them. Nothing a set names is dropped: a key that reaches none of these

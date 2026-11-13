@@ -5,6 +5,6 @@
 #' and the order in which the pieces land.
 #'
 #' @keywords internal
-#' @importFrom plant scm_base_parameters
+#' @importFrom plant base_parameters
 #' @importFrom yaml read_yaml
 "_PACKAGE"

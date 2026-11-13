@@ -42,7 +42,7 @@
 ##' s <- pulse_series_poisson(0, 100, rate = 20, mean_amount = 0.014)
 ##' nrow(s)                      # about 2000 pulses
 ##' sum(s$amount) / 100          # about 0.28 m of water a year
-##' p <- plant::add_strategies(plant::scm_base_parameters("TF24"),
+##' p <- plant::add_strategies(plant::base_parameters("TF24"),
 ##'                            plant::trait_matrix(0.0825, "lma"))
 ##' ev <- plant::events(plant::events_default(p), plant::rainfall_pulse(s$time, s$amount))
 pulse_series_poisson <- function(from, to, rate, mean_amount) {

@@ -63,7 +63,7 @@ would pair a noon VPD with a cooler, less saturable air.
 Rainfall is delivered as \strong{pulses} by default: each wet day's total, in
 metres, at the middle of the day, as rows from \code{plant::rainfall_pulse()}, and
 the continuous \code{rainfall} driver is set to zero so the water is not counted
-twice. Pass the returned \code{events} to \code{plant::run_scm()} with
+twice. Pass the returned \code{events} to \code{plant::run()} with
 \code{plant::events()}. A daily total is a sum of discrete events; interpolating
 it spreads each one over its neighbours. \code{rainfall = "spline"} sets the
 continuous driver instead (m yr-1), which suits a mean year.

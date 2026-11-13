@@ -1,4 +1,4 @@
-test_that("a set builds all four of run_scm's inputs from its file", {
+test_that("a set builds all four of run()'s inputs from its file", {
   set <- parameter_set(test_set())
   expect_s3_class(set, "fieldtrial_set")
   expect_length(set$p$strategies, 1L)

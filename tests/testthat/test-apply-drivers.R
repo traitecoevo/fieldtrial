@@ -101,7 +101,7 @@ test_that("a table without site attributes, or without rainfall, still applies",
 
 test_that("a short TF24 stand runs on the drivers and pulses", {
   skip_on_cran()
-  p <- plant::scm_base_parameters("TF24")
+  p <- plant::base_parameters("TF24")
   p$max_patch_lifetime <- 1
   p <- plant::add_strategies(p, plant::trait_matrix(0.0825, "lma"),
                              tradeoffs("TF24"), birth_rate = 1,
@@ -110,6 +110,6 @@ test_that("a short TF24 stand runs on the drivers and pulses", {
   res <- apply_drivers(env, met_two_years(), until = p$max_patch_lifetime)
   expect_true(all(res$events$time <= 1))
   ev <- plant::events(plant::events_default(p), res$events)
-  out <- plant::run_scm(p, res$env, plant::control(), events = ev)
+  out <- plant::run(p, res$env, plant::control(), events = ev)
   expect_true(all(is.finite(out$offspring_production)))
 })

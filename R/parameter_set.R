@@ -1,5 +1,5 @@
 ## Parameter sets: one YAML file per species x site, materialised into the
-## four inputs plant::run_scm() takes. The file format is described in
+## four inputs plant::run() takes. The file format is described in
 ## inst/sets/README.md; a set file is versioned by its `schema` key.
 
 set_schema_version <- 1L
@@ -20,7 +20,7 @@ soil_keys <- c("depth", "n_layers", "top", "theta", "soil_moist_sat", "K_sat",
 ## Run settings a set may give: fields of plant's Parameters that
 ## add_strategies() leaves alone (it rewrites the strategies and their node
 ## schedules), plus the strategy's birth rate.
-run_keys <- c("max_patch_lifetime", "patch_area", "n_patches", "patch_type",
+run_keys <- c("max_patch_lifetime", "patch_area", "n_patches", "fitness_weighting",
               "fitness_window_start", "fitness_window_end", "birth_rate")
 
 driver_keys <- c("source", "file", "res", "repeat", "set", "rainfall", "leaf_temp")
@@ -34,7 +34,7 @@ driver_keys <- c("source", "file", "res", "repeat", "set", "rainfall", "leaf_tem
 #' YAML files in the package (`list_sets()`) or anywhere on disk.
 #'
 #' `parameter_set()` reads a set and builds the four inputs of
-#' `plant::run_scm()`: `p` (a `plant::Parameters` with one strategy), `env`
+#' `plant::run()`: `p` (a `plant::Parameters` with one strategy), `env`
 #' (a `plant::Environment` with its soil and drivers), `ctrl` (a
 #' `plant::Control`) and `events` (rainfall pulses, or `NULL`). `run_set()`
 #' runs them. Nothing a set names is dropped: a key that reaches none of these
@@ -55,8 +55,8 @@ driver_keys <- c("source", "file", "res", "repeat", "set", "rainfall", "leaf_tem
 #'   drivers come from a gridded source.
 #' @return `parameter_set()`: a list of class `fieldtrial_set` with `p`, `env`,
 #'   `ctrl`, `events`, `tradeoffs` (the trade-off function used), `met` (the
-#'   daily met table) and `meta` (the parsed file). `run_set()`: the result of
-#'   `plant::run_scm()`. `check_set()`: `set`, invisibly. `list_sets()`: the
+#'   daily met table) and `meta` (the parsed file). `run_set()`: the `plant_run` that
+#'   `plant::run()` returns. `check_set()`: `set`, invisibly. `list_sets()`: the
 #'   names of the sets in the package.
 #' @export
 parameter_set <- function(set, check = TRUE, drivers = TRUE,
@@ -68,7 +68,7 @@ parameter_set <- function(set, check = TRUE, drivers = TRUE,
 
   ## Parameters: run settings, then direct pars and strategy fields on the
   ## default strategy, then the one strategy built through the trade-offs.
-  p <- plant::scm_base_parameters(model)
+  p <- plant::base_parameters(model)
   run <- meta$run %||% list()
   for (key in setdiff(names(run), "birth_rate")) {
     if (!key %in% run_keys || !key %in% names(p)) {
@@ -158,13 +158,13 @@ check_set <- function(set, allow_version_drift = FALSE) {
 }
 
 #' @rdname parameter_set
-#' @param ... Passed to `plant::run_scm()`.
+#' @param ... Passed to `plant::run()`.
 #' @export
 run_set <- function(set, ...) {
   set <- parameter_set(set)
   events <- if (is.null(set$events)) NULL else
     plant::events(plant::events_default(set$p), set$events)
-  plant::run_scm(set$p, set$env, set$ctrl, events = events, ...)
+  plant::run(set$p, env = set$env, control = set$ctrl, events = events, ...)
 }
 
 #' @rdname parameter_set

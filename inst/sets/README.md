@@ -1,6 +1,6 @@
 # Parameter sets
 
-One YAML file per species at a site. `fieldtrial::parameter_set("<name>")` reads `<name>.yml` from this folder and builds the four inputs of `plant::run_scm()`; `run_set()` runs them.
+One YAML file per species at a site. `fieldtrial::parameter_set("<name>")` reads `<name>.yml` from this folder and builds the four inputs of `plant::run()`; `run_set()` runs them.
 
 Every scientific value is written `name: {value: <number>, source: "<Zotero key or dataset>"}`. A value without a source is refused. Run and control settings are plain values.
 

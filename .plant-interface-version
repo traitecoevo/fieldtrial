@@ -1,14 +1,17 @@
 # The plant ref this package was last built and checked against, and the plant
 # breaking changes it has absorbed. Same convention as regnans.
-migrated_on: 2026-11-13
+migrated_on: 2026-11-14
 plant_version: 2.0.0.9002
-plant_ref: develop@4520694a (2026-11-13; odelia 0.11.0 @v0.11.0, phylloptim 0.36.0 @e2c9460)
+plant_ref: develop@83a973ff (2026-11-14; odelia 0.11.1 @v0.11.1, phylloptim 0.36.0 @e2c9460)
 applied_breaking_changes:
   - tradeoffs-travel-with-parameters  # bare scm_base_parameters() attaches no trade-offs; *_hyperpar removed -> default_hyperpar(); sets attach theirs to p$hyperpar
   - model-classes-renamed  # plant#760 (#641): *_Strategy -> *_Model, including names built as paste0(model, "_Model")
   - tf24-unused-parameters-removed  # plant#762 (#611): tradeoffs("TF24") no longer returns nmass_l; baseline re-blessed for that column only
+  - one-run-verb  # plant#779 (#428): run_scm() -> run(), returning a plant_run; scm_base_parameters() -> base_parameters(). run_set() now returns the plant_run
+  - fitness-weighting  # plant#781 (#428): Parameters$patch_type -> fitness_weighting (run_keys); fitness read from the patch (#460), not used here
 # Checked and not affected (no call sites): NodeSchedule -> Schedule (#752);
 # opt_psi_stem -> opt_psi_leaf and tidy_individual() (#746); TF24f's
 # use_ad_gradient/psi_fd_step (#745); TF24* stand reports and
-# plant_log_console() (#535); scenario gateway functions unexported and
-# optimise_individual_rate_at_height_by_trait() removed.
+# plant_log_console() (#535); the scenario gateway (deleted, #775) and
+# optimise_individual_rate_at_height_by_trait() removed; run_stochastic_collect()
+# and grow_individual_to_*() (#779); the SCM's fitness fields, moved to the patch (#781).

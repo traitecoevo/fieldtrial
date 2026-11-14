@@ -7,7 +7,7 @@
 ## What lives here
 
 - **Trait trade-offs** (`R/tradeoffs*.R`, `inst/tradeoffs/*.yml`): the functions that derive model parameters from traits, satisfying plant's contract `f(m, s, filter = TRUE)`. The recommended versions live here; `plant` keeps only a frozen copy as an explicitly loaded testing set (`plant::default_parameters()`).
-- **Parameter sets** (`inst/sets/*.yml`, `R/parameter_set.R`): one YAML per named species × site, with provenance. `parameter_set(name)` materialises the four objects `run_scm()` takes: `Parameters`, `Environment`, `Control`, `Events`.
+- **Parameter sets** (`inst/sets/*.yml`, `R/parameter_set.R`): one YAML per named species × site, with provenance. `parameter_set(name)` materialises the four objects `run()` takes: `Parameters`, `Environment`, `Control`, `Events`.
 - **Environmental drivers** (`R/met*.R`, `R/apply_drivers.R`): a canonical daily met table (noon values plus diurnal amplitudes, not daytime means) and one adapter per source. Raw grids never enter the repo; sets ship small derived site series under `inst/extdata/met/`.
 
 ## Checking against plant
@@ -18,7 +18,7 @@ The tests compare against plant's own trade-off functions, so they need the plan
 
 - **Two copies of the trade-off forms exist by decision.** plant's is frozen (changing it re-blesses plant's goldens); this one is live. A bit-identity test here records when they diverge. Do not "fix" one to match the other without reading `PLAN.md` first.
 - **Cite, never recall.** Every trait, coefficient and soil value in a set names a Zotero key or a dataset. A number without a source is refused in review.
-- **Every value a set names must reach `run_scm()`.** `check_passthrough(model)` lists leaf-side parameters plant cannot set; gaps are fixed in plant, not papered over here.
+- **Every value a set names must reach `run()`.** `check_passthrough(model)` lists leaf-side parameters plant cannot set; gaps are fixed in plant, not papered over here.
 - **Driver semantics follow plant.** `SWdown` and `atm_vpd` are values at solar noon; rainfall is delivered as pulses by default; drivers cover whole days from time 0. Every adapter returns the table `validate_met()` accepts, and tower records go through `met_daily_from_subdaily()` rather than their own aggregation. See `PLAN.md` § Drivers before changing an adapter.
 
 ## Plant family

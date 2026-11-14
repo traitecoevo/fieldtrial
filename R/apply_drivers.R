@@ -31,7 +31,7 @@ driver_map <- data.frame(
 #' Rainfall is delivered as **pulses** by default: each wet day's total, in
 #' metres, at the middle of the day, as rows from `plant::rainfall_pulse()`, and
 #' the continuous `rainfall` driver is set to zero so the water is not counted
-#' twice. Pass the returned `events` to `plant::run_scm()` with
+#' twice. Pass the returned `events` to `plant::run()` with
 #' `plant::events()`. A daily total is a sum of discrete events; interpolating
 #' it spreads each one over its neighbours. `rainfall = "spline"` sets the
 #' continuous driver instead (m yr-1), which suits a mean year.

@@ -9,10 +9,14 @@ vignette: >
 
 <!--
 sets.Rmd is generated from sets.Rmd.orig: each set downloads WorldClim and runs
-a full patch, too slow to build with the package. Regenerate from the package
-root, against the plant pinned in DESCRIPTION, with
+a full patch, too slow to build with the package. Regenerate against the plant
+pinned in DESCRIPTION, from inside vignettes/ (knitr writes the figure and its
+cache relative to the working directory), with
 
-  knitr::knit("vignettes/sets.Rmd.orig", output = "vignettes/sets.Rmd")
+  knitr::knit("sets.Rmd.orig", output = "sets.Rmd")
+
+The runs are cached in vignettes/cache/ (not committed) and rerun when a set
+file, fieldtrial's version or the installed plant library changes.
 -->
 
 
@@ -58,11 +62,11 @@ mulga$meta$pars$hmat
 #> [1] "Preece-1971a (doi:10.1071/bt9710021), Methods: the flowering mulga studied were mostly between 2 and 3 m tall (chosen as a size convenient for counting flowers); a proxy for height at maturation, which has no direct measurement. AusTraits' mean plant height (4.7 m) was tried first: the stand reached it only in the 105th year, so it barely reproduced"
 ```
 
-Some values are proxies, marked as such in their source: no stem vulnerability curve exists for any mulga taxon, so the mulga sets use the leaf water potential at stomatal closure for stem and root P50. The values the trade-offs derive from the traits are in the strategy:
+Some values are proxies, marked as such in their source: no stem vulnerability curve exists for any mulga taxon, so the mulga sets use the leaf water potential at stomatal closure for stem and root P50. The built strategy holds all three kinds of value: the traits (here `lma`, `rho`, `vcmax_25`), the parameters set directly (`root_P50`, `hmat`), and the parameters the trade-offs derive from the traits (here `stem_P50`, through a coefficient the set overrides):
 
 
 ``` r
-mulga$p$strategies[[1]]$pars[c("lma", "rho", "vcmax_25", "stem_P50", "root_P50", "hmat")]
+mulga$p$strategies[[1]]$pars[c("lma", "rho", "vcmax_25", "root_P50", "hmat", "stem_P50")]
 #> $lma
 #> [1] 0.4579142
 #> 
@@ -72,14 +76,14 @@ mulga$p$strategies[[1]]$pars[c("lma", "rho", "vcmax_25", "stem_P50", "root_P50",
 #> $vcmax_25
 #> [1] 174
 #> 
-#> $stem_P50
-#> [1] 6.7
-#> 
 #> $root_P50
 #> [1] 6.7
 #> 
 #> $hmat
 #> [1] 2.5
+#> 
+#> $stem_P50
+#> [1] 6.7
 ```
 
 The first set to load downloads WorldClim's 10 arc-minute grids, about 200 MB, into `tools::R_user_dir("fieldtrial", "cache")`, and later loads reuse them. The climate is WorldClim's 1970–2000 mean year, repeated for the length of the run.
@@ -144,7 +148,7 @@ panel(c("mulga_alice_springs", "mulga_delta"), "Mulga")
 par(op)
 ```
 
-Offspring production, the seed each plant arriving in a patch produces over the patch's life:
+Offspring production: the seed produced over a lifetime per seed arriving, averaged over patches of every age (plant's `fitness_weighting`) and multiplied by the birth rate, which is 1 in every set:
 
 
 ``` r
@@ -155,17 +159,22 @@ sapply(runs, `[[`, "offspring_production")
 
 ## What the runs show
 
-Each stand grows quickly until its tallest plants reach their height at maturation, and then nearly stops. By 105 years the alpine ash stands at 25.7 m, against a height at maturation of 23.5 m, and both mulga stands at about 2.7 m, against 2.5 m. Neither is the height of the forests at these sites: the canopy at the Alice Springs tower averages 6.5 m, and alpine ash at Tumbarumba grows to about 40 m.
+
+
+Each stand grows quickly until its tallest plants reach their height at maturation, and then nearly stops. By 105 years the alpine ash stands at 25.7 m, against a height at maturation of 23.5 m, and the two mulga stands at 2.73 and 2.76 m, against 2.5 m. These are not the heights of the trees at these sites: the alpine ash canopy at Tumbarumba is about 40 m, and AusTraits' mean height for *Acacia aneura* is 4.7 m (both cited in the set files).
 
 The ceiling comes from how TF24 divides surplus production between growth and reproduction. The share going to reproduction rises with height `h` as `a_f1 / (1 + exp(a_f2 * (1 - h / hmat)))`, and none of the sets change plant's defaults for its two coefficients:
 
 
 ``` r
-unlist(plant::TF24_Model()$pars[c("a_f1", "a_f2")])
-#> a_f1 a_f2 
-#>    1   50
+mulga$p$strategies[[1]]$pars[c("a_f1", "a_f2")]
+#> $a_f1
+#> [1] 1
+#> 
+#> $a_f2
+#> [1] 50
 ```
 
-With `a_f1 = 1` the share approaches all of the surplus, and with `a_f2 = 50` it gets there quickly: 99% of the surplus goes to reproduction once a plant is 1.092 times its height at maturation, and the plant stops growing. That is 25.7 m for the alpine ash and 2.7 m for the mulga, about the heights the runs reach.
+With `a_f1 = 1` the share approaches all of the surplus, and with `a_f2 = 50` it gets there quickly: 99% of the surplus goes to reproduction once a plant is 1.092 times its height at maturation, which is 25.7 m for the alpine ash and 2.73 m for the mulga. Growth does not stop there, but it slows to a crawl: the stands keep creeping upwards, and the Delta mulga has passed that height by 105 years.
 
-So in these sets `hmat` is the height the stand reaches, not only the height at which it starts to reproduce. That is why the alpine ash set's `hmat` was derived from a run without maturation (the height reached at 20 years, its juvenile period) rather than taken from the size at which saplings first flower, which would cap the forest at about 6 m. Letting trees keep growing after they mature would take an `a_f1` below 1 or a smaller `a_f2`, both of which a set can give under `pars:`, with a source for the value.
+So in these sets `hmat` is close to the height the stand reaches, not only the height at which it starts to reproduce. That is why the alpine ash set's `hmat` was derived from a run without maturation (the height reached at 20 years, its juvenile period) rather than taken from the size at which saplings first flower, which would cap the forest at about 6 m. Letting trees keep growing after they mature would take an `a_f1` below 1, which leaves a share `1 - a_f1` of the surplus for growth at any height; a smaller `a_f2` only moves the point where growth fades further above `hmat`. A set can give either under `pars:`, with a source for the value.

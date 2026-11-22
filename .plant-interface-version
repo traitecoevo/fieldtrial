@@ -1,17 +1,31 @@
 # The plant ref this package was last built and checked against, and the plant
 # breaking changes it has absorbed. Same convention as regnans.
-migrated_on: 2026-11-14
+migrated_on: 2026-11-22
 plant_version: 2.0.0.9002
-plant_ref: develop@83a973ff (2026-11-14; odelia 0.11.1 @v0.11.1, phylloptim 0.36.0 @e2c9460)
+plant_ref: tf24-theta-profile@79430498 (plant#882's head, on develop@b075889e, 2026-11-22; odelia 0.12.4 @v0.12.4, phylloptim 0.40.2 @0d592ff6). Re-pin to #882's squash commit on develop once it merges
 applied_breaking_changes:
   - tradeoffs-travel-with-parameters  # bare scm_base_parameters() attaches no trade-offs; *_hyperpar removed -> default_hyperpar(); sets attach theirs to p$hyperpar
   - model-classes-renamed  # plant#760 (#641): *_Strategy -> *_Model, including names built as paste0(model, "_Model")
   - tf24-unused-parameters-removed  # plant#762 (#611): tradeoffs("TF24") no longer returns nmass_l; baseline re-blessed for that column only
   - one-run-verb  # plant#779 (#428): run_scm() -> run(), returning a plant_run; scm_base_parameters() -> base_parameters(). run_set() now returns the plant_run
   - fitness-weighting  # plant#781 (#428): Parameters$patch_type -> fitness_weighting (run_keys); fitness read from the patch (#460), not used here
+  - tf24-theta-tip  # plant#882 (#881): TF24's pars$theta -> theta_tip. The three TF24 sets name theta_tip, each source saying whether it is a branch or a basal value; theta_c is left at plant's default, 0
+  - tf24-scientific-version-17  # plant#787 (25 K transpiration cooling cap) and #830 (smooth rooting cap, no light floor) took TF24 v15 -> v17; no set value changes meaning, and the sets record TF24@v17
 # Checked and not affected (no call sites): NodeSchedule -> Schedule (#752);
 # opt_psi_stem -> opt_psi_leaf and tidy_individual() (#746); TF24f's
 # use_ad_gradient/psi_fd_step (#745); TF24* stand reports and
 # plant_log_console() (#535); the scenario gateway (deleted, #775) and
 # optimise_individual_rate_at_height_by_trait() removed; run_stochastic_collect()
 # and grow_individual_to_*() (#779); the SCM's fitness fields, moved to the patch (#781).
+# Since develop@83a973ff, also checked and not affected: SCM -> DeterministicPatchRunner;
+# a refinement out of passes runs its last bisection's schedule (#861); tidy()'s
+# plotting fields, including $control;
+# Node and Species read-only (#873); OdeRunner/IndividualRunner removed and
+# run(individual, ...) changes (#869); use_stem_gravity added, off (#862); the
+# scenario's environment recipe (#824); the clamp-count readers renamed;
+# gradient_control() and the stand-gradient column changes; offspring_height_tol
+# (#798); TF24_K_s_from_whole_stem() removed; plant's figures moved to
+# plantpress; the stochastic solver's arrivals, events and death interval;
+# run_mutant()'s fitness-window refusal; TF24 a_st1 = 0, a_pl0 bounds, TF24f/t/w
+# changes. Runs move under several of these (#787, #798, #830, the cell-averaged
+# establishment); the trade-off baseline does not, and passes unchanged.

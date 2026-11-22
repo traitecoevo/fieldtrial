@@ -41,7 +41,7 @@ driver_keys <- c("source", "file", "res", "repeat", "set", "rainfall", "leaf_tem
 #' inputs is refused.
 #'
 #' A set records the plant model version it was built against
-#' (`plant_scientific_version`, e.g. `"TF24@v15"`). `check_set()` compares it
+#' (`plant_scientific_version`, e.g. `"TF24@v17"`). `check_set()` compares it
 #' with the installed plant and refuses a mismatch, since the same numbers can
 #' mean a different plant after a scientific change.
 #'

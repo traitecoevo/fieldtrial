@@ -39,7 +39,7 @@ A set is a YAML file in `inst/sets/`. `parameter_set()` reads it and builds the 
 mulga <- parameter_set("mulga_alice_springs")
 mulga
 #> <fieldtrial_set> mulga_alice_springs: TF24 at Alice Springs Mulga (AU-ASM)
-#>   built against TF24@v15; 5 trait(s), 3 direct par(s); drivers from worldclim
+#>   built against TF24@v17; 5 trait(s), 3 direct par(s); drivers from worldclim
 names(mulga)
 #> [1] "p"         "env"       "ctrl"      "events"    "tradeoffs" "met"       "meta"
 ```
@@ -93,9 +93,9 @@ The first set to load downloads WorldClim's 10 arc-minute grids, about 200 MB, i
 
 ``` r
 mulga$meta$plant_scientific_version
-#> [1] "TF24@v15"
+#> [1] "TF24@v17"
 plant::model_id("TF24")
-#> [1] "TF24@v15"
+#> [1] "TF24@v17"
 ```
 
 ## Running the sets
@@ -154,14 +154,14 @@ Offspring production: the seed produced over a lifetime per seed arriving, avera
 ``` r
 sapply(runs, `[[`, "offspring_production")
 #> alpine_ash_tumbarumba   mulga_alice_springs           mulga_delta 
-#>            1523.96497              42.76542             278.68797
+#>            1768.93988              47.09665             216.13888
 ```
 
 ## What the runs show
 
 
 
-Each stand grows quickly until its tallest plants reach their height at maturation, and then nearly stops. By 105 years the alpine ash stands at 25.7 m, against a height at maturation of 23.5 m, and the two mulga stands at 2.73 and 2.76 m, against 2.5 m. These are not the heights of the trees at these sites: the alpine ash canopy at Tumbarumba is about 40 m, and AusTraits' mean height for *Acacia aneura* is 4.7 m (both cited in the set files).
+Each stand grows quickly until its tallest plants reach their height at maturation, and then nearly stops. By 105 years the alpine ash stands at 25.7 m, against a height at maturation of 23.5 m, and the two mulga stands at 2.73 and 2.75 m, against 2.5 m. These are not the heights of the trees at these sites: the alpine ash canopy at Tumbarumba is about 40 m, and AusTraits' mean height for *Acacia aneura* is 4.7 m (both cited in the set files).
 
 The ceiling comes from how TF24 divides surplus production between growth and reproduction. The share going to reproduction rises with height `h` as `a_f1 / (1 + exp(a_f2 * (1 - h / hmat)))`, and none of the sets change plant's defaults for its two coefficients:
 

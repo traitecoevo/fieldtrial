@@ -14,7 +14,10 @@ test_that("the Alice Springs mulga set carries its traits and its hydraulic prox
   expect_equal(pars$lma, 0.4579142)
   expect_equal(pars$rho, 950)
   expect_equal(pars$vcmax_25, 174)
-  expect_equal(pars$theta, 1.57e-3)
+  ## The measured branch Huber value, with the uniform stem that keeps it the
+  ## whole-stem value stated rather than left to plant's default.
+  expect_equal(pars$theta_tip, 1.57e-3)
+  expect_identical(pars$theta_c, 0)
   expect_equal(pars$hmat, 2.5)
   ## The stem curve's P50 is the proxy, through the trade-off at the default
   ## K_s; the root curve's directly.
@@ -50,6 +53,9 @@ test_that("the alpine ash set carries its site values and proxies", {
   expect_equal(pars$lma, 1 / 4.85, tolerance = 1e-5)
   expect_equal(pars$vcmax_25, 81.5)
   expect_equal(pars$jmax_25, 194.6)
+  ## A basal (trunk) Huber value, likewise on a stated uniform stem.
+  expect_equal(pars$theta_tip, 2.594186e-04)
+  expect_identical(pars$theta_c, 0)
   ## E. regnans stem P50 scaled by the two species' leaf P50s.
   expect_equal(pars$stem_P50, 4.98 * 3.42 / 3.21, tolerance = 1e-5)
   expect_equal(pars$root_P50, 4.98 * 3.42 / 3.21, tolerance = 1e-5)

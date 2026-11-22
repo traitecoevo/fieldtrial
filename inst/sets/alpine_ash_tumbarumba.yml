@@ -2,7 +2,7 @@ schema: 1
 name: alpine_ash_tumbarumba
 description: "Alpine ash (Eucalyptus delegatensis) at the Tumbarumba flux site, AU-Tum, Bago State Forest, NSW. Values measured at the site first; AusTraits means for E. delegatensis where the site has none. Stem and root P50 are a derived proxy (E. regnans stem, scaled by the two species' leaf P50s); hmat is derived from the set's own growth to 20 years."
 model: TF24
-plant_scientific_version: "TF24@v15"
+plant_scientific_version: "TF24@v17"
 site: {name: "Tumbarumba (AU-Tum)", latitude: -35.6557, longitude: 148.1521, elevation: 1200}
 traits:
   lma: {value: 0.206186, source: "Medlyn-2007 (doi:10.1093/treephys/27.12.1687), Methods: crown-average specific leaf area 4.85 m2 kg-1 of E. delegatensis at AU-Tum, so LMA = 1/4.85 kg m-2"}
@@ -13,8 +13,9 @@ traits:
 tradeoff_coefficients:
   B_Hv1: {value: 0.62995941028944247, source: "DERIVED PROXY. Set so stem_P50 = 5.30579 MPa at plant's default K_s. No stem P50 for E. delegatensis could be read. 5.30579 = 4.98 x 3.42 / 3.21: the stem P50 of the congener E. regnans (Pan-NoDate, published 2026, doi:10.1111/nph.71345, Table 1; optical method, 6-10-month seedlings, n = 6), scaled by the ratio of the two species' leaf P50s measured together (Britton-2022, doi:10.1111/nph.17888, Results: E. delegatensis 3.42 +/- 0.16 and E. regnans 3.21 +/- 0.16 MPa, optical method, 6-year-old trees, Tasmania)"}
 pars:
-  theta: {value: 2.594186e-04, source: "Falster-2021 (AusTraits): austraits-means 7.0.0.9000 geometric observed mean Huber value for Eucalyptus delegatensis, 2.594186e-4 mm2 sapwood per mm2 leaf, 2 records (Togashi_2015). Mokany-2003 (doi:10.1093/treephys/23.14.949) finds it falls with tree height at Bago SF"}
-  hmat: {value: 23.51, source: "DERIVED: the tallest cohort's height at 20 years in a run of this set with no maturation (hmat 100 m, plant develop@218501e1, WorldClim drivers), so the stand matures at about the 20-year primary juvenile period Doherty-2017 (doi:10.1071/bt17068) gives for alpine ash; a few per cent flower earlier, at ~5-6 m. Re-derived after the P50 change (23.55 m at P50 4.98). Re-derive if the set's other values change"}
+  theta_tip: {value: 2.594186e-04, source: "Falster-2021 (AusTraits): austraits-means 7.0.0.9000 geometric observed mean Huber value for Eucalyptus delegatensis, 2.594186e-4 mm2 sapwood per mm2 leaf, 2 records (Togashi_2015). Both are trunk samples from Mokany-2003 (doi:10.1093/treephys/23.14.949), sapwood at 1.3 m on trees 15.7 and 20.6 m tall: a BASAL value, which plant reads as theta_tip only while theta_c = 0, as this set states below. Mokany-2003 finds it falls with tree height at Bago SF, the taller trees compensating by wider conduits"}
+  theta_c: {value: 0, source: "fieldtrial: a uniform stem, stated so that theta_tip keeps meaning the measured basal Huber value whatever plant's default becomes (plant#881). Mokany-2003 measured how the basal value varies among trees of different heights, not how it varies within one stem"}
+  hmat: {value: 23.51, source: "DERIVED: the tallest cohort's height at 20 years in a run of this set with no maturation (hmat 100 m, plant develop@218501e1, WorldClim drivers), so the stand matures at about the 20-year primary juvenile period Doherty-2017 (doi:10.1071/bt17068) gives for alpine ash; a few per cent flower earlier, at ~5-6 m. Re-derived after the P50 change (23.55 m at P50 4.98), and checked under TF24@v17 (plant#882): 23.49 m, within the method's precision, so kept. Re-derive if the set's other values change"}
   root_P50: {value: 5.30579, source: "DERIVED PROXY, as for B_Hv1: E. regnans stem P50 (Pan-NoDate) scaled by the E. delegatensis / E. regnans leaf P50 ratio (Britton-2022). No root vulnerability curve for E. delegatensis was found"}
 environment:
   soil:

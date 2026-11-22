@@ -1,6 +1,6 @@
 # Scoping `fieldtrial`: parameter sets + environmental drivers for `plant`
 
-Status (2026-11-22): phases 0, 1, 2a and WorldClim done (fieldtrial#2–#5; plant-meta#9). Phases 3 and 6 (plant PR A with PR B folded in) merged as plant#731. Phase 4 has its machinery and three sets (fieldtrial#6, #8–#10, #12); regnans and logpile have moved (phase 5). Open, in order: a vignette running each set end to end; the TF24 post-maturity growth plateau (§ Parameter sets); the overstorey met-file section; the AGCD, tower and CRU adapters, each waiting on data access. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
+Status (2026-11-22): phases 0, 1, 2a and WorldClim done (fieldtrial#2–#5; plant-meta#9). Phases 3 and 6 (plant PR A with PR B folded in) merged as plant#731. Phase 4 has its machinery and three sets (fieldtrial#6, #8–#10, #12); regnans and logpile have moved (phase 5). Open, in order: a vignette running each set end to end; the TF24 post-maturity growth plateau (§ Parameter sets); the overstorey met-file section; the TerraClimate adapter (Isaac Towers); the AGCD, tower and CRU adapters, each waiting on data access. Decisions taken by the maintainers are marked **Decided**. This file is the single source of truth for the work: keep it current, mark phases done, and retire inventory that no longer holds.
 
 ## Context
 
@@ -287,7 +287,9 @@ Site metadata (`lat`, `lon`, `elev`, `vpd_peak_hour`) travel as attributes and a
 
 Every gap-fill is a named, documented function, so the same estimate is used by every adapter, and its presence is recorded per column in the table's attributes. The noon/amplitude fit from half-hourly data is validated once against the 618 analysis' synthetic sites and reused by FLUXNET and PLUMBER2 alike; `swdown_clear_sky()` uses the corrected declination from `tf24_diurnal.h` so plant's reconstructed day and fieldtrial's clear-sky estimate agree.
 
-Later adapters, in this order: SILO (Australia, daily, has radiation and VPD), TerraClimate (global 4 km monthly 1958–, has srad and vpd directly, so the fewest gap-fills of any global grid), ERA5-Land (hourly, via `ecmwfr`/`mcera5`). Monthly sources feed `met_climatology()` directly or a `pulse_series_fit()`/`pulse_series_markov()` daily disaggregation; the disaggregation choice is recorded in the set's `drivers` block. Raw grids never enter the repo; each set ships the small derived daily or monthly CSV for its site.
+**TerraClimate** (global, 4 km, monthly 1958–; <https://www.climatologylab.org/terraclimate.html>) is next, and Isaac Towers will implement it (decided 2026-11-22). It uses the monthly values, so it goes through `met_from_monthly()` like WorldClim: its `tmax`, `tmin`, `ppt`, `srad`, `ws` and `vap` map onto the converter's columns, leaving only the within-month assumptions filled. Unlike WorldClim it is a year-by-year series, so a set can have interannual variation from a global source.
+
+Later adapters, in this order: SILO (Australia, daily, has radiation and VPD), ERA5-Land (hourly, via `ecmwfr`/`mcera5`). Monthly sources feed `met_climatology()` directly or a `pulse_series_fit()`/`pulse_series_markov()` daily disaggregation; the disaggregation choice is recorded in the set's `drivers` block. Raw grids never enter the repo; each set ships the small derived daily or monthly CSV for its site.
 
 ### Registration in the family
 

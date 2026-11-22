@@ -8,3 +8,5 @@
 ^LICENSE\.md$
 ^data-raw$
 ^inst/sets/README\.md$
+^vignettes/sets\.Rmd\.orig$
+^vignettes/cache$

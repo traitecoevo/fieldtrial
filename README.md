@@ -43,6 +43,8 @@ names(set)           # p, env, ctrl and events: the four inputs of plant::run()
 res <- run_set(set)  # a 105-year patch: about ten minutes
 ```
 
+The [sets vignette](vignettes/sets.Rmd) runs every shipped set and compares how the stands grow.
+
 Build driver series for a site yourself: a mean year from WorldClim, repeated and written into a TF24 environment, or a drawn series of rainfall pulses. `leaf_temp` is left at plant's default unless asked for; it is asked for here because Alice Springs' noon VPD is beyond what the leaf allows at 25 °C, as the mulga set does too. `met_from_monthly()` builds the same daily table from any monthly climatology, and `met_daily_from_subdaily()` from a flux tower's half-hourly record.
 
 ```r

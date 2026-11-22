@@ -9,3 +9,4 @@ inst/doc
 fieldtrial.Rcheck/
 .claude/settings.local.json
 tests/testthat/_problems/
+vignettes/cache/

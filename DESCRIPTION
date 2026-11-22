@@ -20,6 +20,8 @@ Imports:
     stats,
     yaml
 Suggests:
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0),
     withr,
     geodata,
@@ -27,6 +29,7 @@ Suggests:
     ncdf4
 Remotes:
     traitecoevo/plant@83a973ffe771e841de46cd5ecb1575b6f8f16f84
+VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3

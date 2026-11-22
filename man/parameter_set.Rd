@@ -61,7 +61,7 @@ runs them. Nothing a set names is dropped: a key that reaches none of these
 inputs is refused.
 
 A set records the plant model version it was built against
-(\code{plant_scientific_version}, e.g. \code{"TF24@v15"}). \code{check_set()} compares it
+(\code{plant_scientific_version}, e.g. \code{"TF24@v17"}). \code{check_set()} compares it
 with the installed plant and refuses a mismatch, since the same numbers can
 mean a different plant after a scientific change.
 }

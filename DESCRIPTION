@@ -28,7 +28,7 @@ Suggests:
     terra,
     ncdf4
 Remotes:
-    traitecoevo/plant@83a973ffe771e841de46cd5ecb1575b6f8f16f84
+    traitecoevo/plant@a4910a864d5116d50f53d1ec3296a41baec0ef3d
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

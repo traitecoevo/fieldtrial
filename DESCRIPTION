@@ -26,7 +26,7 @@ Suggests:
     terra,
     ncdf4
 Remotes:
-    traitecoevo/plant@79430498e46697981fa4b1b6fd6e6a2b238ec29a
+    traitecoevo/plant@a4910a864d5116d50f53d1ec3296a41baec0ef3d
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3

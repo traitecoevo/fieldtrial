@@ -128,7 +128,7 @@ coefficients:
   B_Hv1:
     value: "0.36591565341924093"
     units: "log10(-MPa)"
-    description: "log10 of stem_P50 at terminal-segment K_s = 1. Re-anchored in plant (traitecoevo/plant#615) when K_s became a tip conductivity, so that stem_P50 is unchanged at the default K_s. Whether the K_s to P50 relation should be keyed on tip conductivity at all is open (traitecoevo/phylloptim#49 for the height exponent)."
+    description: "log10 of stem_P50 at terminal-segment K_s = 1. Re-anchored in plant (traitecoevo/plant#615) when K_s became a tip conductivity, so that stem_P50 is unchanged at the default K_s. Whether the K_s to P50 relation should be keyed on tip conductivity at all is open in traitecoevo/plant#615, which also holds the height exponent."
     source: "plant default, re-anchored from 0.4607063 by -0.2 * log10(2.9782)"
     reference: ""
   B_Hv2:

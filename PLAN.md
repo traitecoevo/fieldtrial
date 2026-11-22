@@ -107,7 +107,7 @@ fieldtrial/                       R package, Imports plant (sha-pinned), terra, 
 
 Port discipline: before plant removes anything, fieldtrial's tests assert bit-identity of `tradeoffs("TF24")(m, s, filter = FALSE)` against `plant::TF24_hyperpar(m, s, filter = FALSE)` over a trait grid, and likewise FF16. The baseline is plant's current output, committed as a fixture (porting numerics needs a committed baseline).
 
-Cross-repo invariant test, in fieldtrial: `tradeoffs("TF24")` at plant's default traits reproduces `TF24_Model()$pars[c("stem_P50", "stem_c", "stem_b", "psi_crit")]`. The `B_Hv1` entry in `TF24.yml` documents that the K_s→P50 slope acts on tip conductivity since #615 and names #49 as the open question on the height exponent.
+Cross-repo invariant test, in fieldtrial: `tradeoffs("TF24")` at plant's default traits reproduces `TF24_Model()$pars[c("stem_P50", "stem_c", "stem_b", "psi_crit")]`. The `B_Hv1` entry in `TF24.yml` documents that the K_s→P50 slope acts on tip conductivity since #615 and names #615 as where that keying and the height exponent are open.
 
 **As implemented in phase 1** (plant develop@ae869f13). These constrain later edits:
 
@@ -313,7 +313,7 @@ Later adapters, in this order: SILO (Australia, daily, has radiation and VPD), T
 5. 🔄 **regnans** (regnans#99, pinned at develop@218501e1): `plant_default_assembly_pars()` builds on `default_parameters(model, quiet = TRUE)`; `.plant-interface-version` bumped to the plant#731 head, to be repointed at the squash commit. **logpile** (logpile#7, pinned at develop@218501e1): `default_hyperpar(model)` with coefficient overrides from `global`, allowed names from `attr(f, "coefficients")`, `p$hyperpar` set on the built Parameters; its own suite has 12 pre-existing failures from `FF16@v1` pins, identical against plant develop. **overstorey**: `guides/extrinsic-drivers.qmd` fixes the stale PPFD row and gains a "from a met file" section; default-parameter claims read `parameter_table()` so they cannot rot.
 6. ✅ **plant PR B**: folded into plant#731 (see § plant changes); nothing left to remove.
 
-Out of scope, recorded so nobody absorbs it: forecasting draws and driver uncertainty (floracle, #521, mulgafutures DR1); the height exponent of stem conductance (#615, phylloptim #49: a plant/phylloptim functional-form question, fieldtrial only documents `B_Hv1`); thermal-pathway calibration (phylloptim #187; its fitted values may later enter TF24t sets); microclimf downscaling; SILO, ERA5-Land, SoilGrids readers (next release); Dahra/Verbruggen set (after the global path exists).
+Out of scope, recorded so nobody absorbs it: forecasting draws and driver uncertainty (floracle, #521, mulgafutures DR1); the height exponent of stem conductance (#615, which absorbed phylloptim #49 by way of fieldtrial#11: a functional-form question for plant's TF24 model, fieldtrial only documents `B_Hv1`); thermal-pathway calibration (phylloptim #187; its fitted values may later enter TF24t sets); microclimf downscaling; SILO, ERA5-Land, SoilGrids readers (next release); Dahra/Verbruggen set (after the global path exists).
 
 ## Verification
 

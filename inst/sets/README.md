@@ -9,7 +9,7 @@ schema: 1                           # the file format's version
 name: mulga_alice_springs
 description: "Acacia aneura at the Alice Springs Mulga flux site"
 model: TF24                         # TF24, TF24f, TF24t, TF24w or FF16
-plant_scientific_version: "TF24@v15"  # the plant model the values were checked against
+plant_scientific_version: "TF24@v17"  # the plant model the values were checked against
 site: {name: "Alice Springs Mulga (AU-ASM)", latitude: -22.283, longitude: 133.249, elevation: 606}
 traits:                             # inputs to the trade-offs; one strategy
   lma: {value: 0.2, source: "Key-2020"}

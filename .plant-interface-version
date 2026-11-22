@@ -9,7 +9,7 @@ applied_breaking_changes:
   - tf24-unused-parameters-removed  # plant#762 (#611): tradeoffs("TF24") no longer returns nmass_l; baseline re-blessed for that column only
   - one-run-verb  # plant#779 (#428): run_scm() -> run(), returning a plant_run; scm_base_parameters() -> base_parameters(). run_set() now returns the plant_run
   - fitness-weighting  # plant#781 (#428): Parameters$patch_type -> fitness_weighting (run_keys); fitness read from the patch (#460), not used here
-  - tf24-theta-tip  # plant#882 (#881): TF24's pars$theta -> theta_tip. The three TF24 sets name theta_tip, each stating theta_c = 0 so the measured value keeps its meaning
+  - tf24-theta-tip  # plant#882 (#881): TF24's pars$theta -> theta_tip. The three TF24 sets name theta_tip, each source saying whether it is a branch or a basal value; theta_c is left at plant's default, 0
   - tf24-scientific-version-17  # plant#787 (25 K transpiration cooling cap) and #830 (smooth rooting cap, no light floor) took TF24 v15 -> v17; no set value changes meaning, and the sets record TF24@v17
 # Checked and not affected (no call sites): NodeSchedule -> Schedule (#752);
 # opt_psi_stem -> opt_psi_leaf and tidy_individual() (#746); TF24f's
@@ -18,6 +18,8 @@ applied_breaking_changes:
 # optimise_individual_rate_at_height_by_trait() removed; run_stochastic_collect()
 # and grow_individual_to_*() (#779); the SCM's fitness fields, moved to the patch (#781).
 # Since develop@83a973ff, also checked and not affected: SCM -> DeterministicPatchRunner;
+# a refinement out of passes runs its last bisection's schedule (#861); tidy()'s
+# plotting fields, including $control;
 # Node and Species read-only (#873); OdeRunner/IndividualRunner removed and
 # run(individual, ...) changes (#869); use_stem_gravity added, off (#862); the
 # scenario's environment recipe (#824); the clamp-count readers renamed;
